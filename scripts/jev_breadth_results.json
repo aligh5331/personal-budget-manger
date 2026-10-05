@@ -1,0 +1,2764 @@
+[
+ {
+  "dim": "note-only",
+  "case": "a1",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "350",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 2.65,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1477,
+   "output_tokens": 357
+  },
+  "amount": "n_350",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.3,
+  "category": "food",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.95,
+  "tx": "yes",
+  "tx_conf": 0.01,
+  "count": "one",
+  "count_conf": 0.98
+ },
+ {
+  "dim": "note-only",
+  "case": "a2",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "50000000",
+   "dir": "in",
+   "cat": [
+    "salary"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 2.54,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1485,
+   "output_tokens": 367
+  },
+  "amount": "n_50000000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.98,
+  "category": "salary",
+  "category_conf": 0.87,
+  "date": "none",
+  "date_conf": 0.79,
+  "tx": "yes",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "note-only",
+  "case": "a3",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "80000",
+   "dir": "out",
+   "cat": [
+    "transport"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.93,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1480,
+   "output_tokens": 361
+  },
+  "amount": "n_80000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.43,
+  "category": "transport",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.97,
+  "tx": "no",
+  "tx_conf": 0.46,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "note-only",
+  "case": "a4",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "200000",
+   "dir": "in",
+   "cat": [
+    "other_income"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.7,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1492,
+   "output_tokens": 364
+  },
+  "amount": "n_200000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.4,
+  "category": "other_income",
+  "category_conf": 0.79,
+  "date": "none",
+  "date_conf": 0.89,
+  "tx": "yes",
+  "tx_conf": 0.96,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "note-only",
+  "case": "a5",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "none",
+   "tx": "yes"
+  },
+  "lat": 1.81,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1430,
+   "output_tokens": 342
+  },
+  "amount": "none",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "shopping",
+  "category_conf": 0.83,
+  "date": "today",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.98,
+  "count": "one",
+  "count_conf": 0.98
+ },
+ {
+  "dim": "words",
+  "case": "b1",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "450000",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.78,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1479,
+   "output_tokens": 363
+  },
+  "amount": "n_450000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.74,
+  "category": "food",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.94,
+  "tx": "yes",
+  "tx_conf": 0.34,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "words",
+  "case": "b2",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "none-expected-fail",
+   "dir": "out",
+   "cat": [
+    "rent"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.59,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1442,
+   "output_tokens": 344
+  },
+  "amount": "none",
+  "amount_conf": 1.0,
+  "direction": "ambiguous",
+  "direction_conf": 0.18,
+  "category": "rent",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.99,
+  "tx": "no",
+  "tx_conf": 0.9,
+  "count": "one",
+  "count_conf": 0.98
+ },
+ {
+  "dim": "words",
+  "case": "b3",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "none-expected-fail",
+   "dir": "out",
+   "cat": [
+    "entertainment"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.64,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1494,
+   "output_tokens": 358
+  },
+  "amount": "none",
+  "amount_conf": 0.08,
+  "direction": "out",
+  "direction_conf": 0.86,
+  "category": "entertainment",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.99,
+  "tx": "no",
+  "tx_conf": 0.31,
+  "count": "one",
+  "count_conf": 0.6
+ },
+ {
+  "dim": "words",
+  "case": "b4",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "1500000",
+   "dir": "out",
+   "cat": [
+    "shopping"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.71,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1477,
+   "output_tokens": 365
+  },
+  "amount": "n_1500000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.34,
+  "category": "shopping",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.99,
+  "tx": "yes",
+  "tx_conf": 0.26,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "words",
+  "case": "b5",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "none-expected-fail",
+   "dir": "out",
+   "cat": [
+    "fuel"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.69,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1441,
+   "output_tokens": 342
+  },
+  "amount": "none",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "fuel",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.86,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "multi-item",
+  "case": "c1",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "multi",
+   "count": "two"
+  },
+  "lat": 1.54,
+  "err": null,
+  "tries": 2,
+  "usage": {
+   "input_tokens": 1556,
+   "output_tokens": 379
+  },
+  "amount": "n_450000",
+  "amount_conf": 0.62,
+  "direction": "out",
+  "direction_conf": 0.33,
+  "category": "entertainment",
+  "category_conf": 0.99,
+  "date": "none",
+  "date_conf": 0.99,
+  "tx": "no",
+  "tx_conf": 0.56,
+  "count": "two",
+  "count_conf": 0.95
+ },
+ {
+  "dim": "multi-item",
+  "case": "c2",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "multi",
+   "count": "three_plus"
+  },
+  "lat": 1.7,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1656,
+   "output_tokens": 393
+  },
+  "amount": "n_500000",
+  "amount_conf": 0.92,
+  "direction": "out",
+  "direction_conf": 0.48,
+  "category": "groceries",
+  "category_conf": 1.0,
+  "date": "today",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.14,
+  "count": "three_plus",
+  "count_conf": 0.93
+ },
+ {
+  "dim": "multi-item",
+  "case": "c3",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "multi",
+   "count": "two"
+  },
+  "lat": 1.97,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1575,
+   "output_tokens": 377
+  },
+  "amount": "n_200000",
+  "amount_conf": 0.47,
+  "direction": "out",
+  "direction_conf": 0.88,
+  "category": "fuel",
+  "category_conf": 0.66,
+  "date": "none",
+  "date_conf": 0.99,
+  "tx": "yes",
+  "tx_conf": 0.53,
+  "count": "two",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "multi-item",
+  "case": "c4",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "340000",
+   "cat": [
+    "groceries"
+   ],
+   "count": "one"
+  },
+  "lat": 1.63,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1601,
+   "output_tokens": 378
+  },
+  "amount": "n_340000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "groceries",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.97,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.75
+ },
+ {
+  "dim": "date",
+  "case": "d1",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "250",
+   "date": "yesterday",
+   "cat": [
+    "groceries",
+    "food"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.74,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1484,
+   "output_tokens": 361
+  },
+  "amount": "n_250",
+  "amount_conf": 0.98,
+  "direction": "out",
+  "direction_conf": 0.84,
+  "category": "groceries",
+  "category_conf": 0.99,
+  "date": "yesterday",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.94,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "date",
+  "case": "d2",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "180000",
+   "date": "day_before",
+   "cat": [
+    "health"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.7,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1495,
+   "output_tokens": 364
+  },
+  "amount": "n_180000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.94,
+  "category": "health",
+  "category_conf": 1.0,
+  "date": "day_before",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.96,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "date",
+  "case": "d3",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "400000",
+   "date": "d_1405/07/02",
+   "cat": [
+    "rent"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.53,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1587,
+   "output_tokens": 392
+  },
+  "amount": "n_400000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.6,
+  "category": "rent",
+  "category_conf": 1.0,
+  "date": "d_1405/07/02",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.5,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "date",
+  "case": "d4",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "90000",
+   "date": "written",
+   "cat": [
+    "education"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.68,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1479,
+   "output_tokens": 361
+  },
+  "amount": "n_90000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.83,
+  "category": "education",
+  "category_conf": 1.0,
+  "date": "written",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.87,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "date",
+  "case": "d5",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "200000",
+   "date": "written",
+   "cat": [
+    "health"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.63,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1538,
+   "output_tokens": 372
+  },
+  "amount": "n_200000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.36,
+  "category": "health",
+  "category_conf": 1.0,
+  "date": "written",
+  "date_conf": 0.94,
+  "tx": "yes",
+  "tx_conf": 0.68,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "date",
+  "case": "d6",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "180000",
+   "date": "today",
+   "cat": [
+    "transport"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.53,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1483,
+   "output_tokens": 363
+  },
+  "amount": "n_180000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.79,
+  "category": "transport",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.99,
+  "tx": "yes",
+  "tx_conf": 0.34,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "other-banks",
+  "case": "e1",
+  "src": "REAL",
+  "run": 0,
+  "exp": {
+   "amt": "4509614",
+   "dir": "out",
+   "cat": [
+    "shopping"
+   ],
+   "date": "d_1405/07/11",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.71,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 2306,
+   "output_tokens": 532
+  },
+  "amount": "n_4509614",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "shopping",
+  "category_conf": 1.0,
+  "date": "d_1405/07/11",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "other-banks",
+  "case": "e2",
+  "src": "REAL",
+  "run": 0,
+  "exp": {
+   "amt": "68000000",
+   "dir": "in",
+   "date": "d_1405/06/28",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.93,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 2012,
+   "output_tokens": 480
+  },
+  "amount": "n_68000000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.91,
+  "category": "uncategorized",
+  "category_conf": 0.81,
+  "date": "d_1405/06/28",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "other-banks",
+  "case": "e3",
+  "src": "REAL",
+  "run": 0,
+  "exp": {
+   "amt": "100000000",
+   "dir": "in",
+   "date": "d_0709-22:25",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.82,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1695,
+   "output_tokens": 429
+  },
+  "amount": "n_100000000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.84,
+  "category": "other_income",
+  "category_conf": 0.9,
+  "date": "d_0709-22:25",
+  "date_conf": 0.99,
+  "tx": "yes",
+  "tx_conf": 0.94,
+  "count": "one",
+  "count_conf": 0.75
+ },
+ {
+  "dim": "other-banks",
+  "case": "e4",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "1200000",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "date": "d_1405/07/10",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.56,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1667,
+   "output_tokens": 409
+  },
+  "amount": "n_1200000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.99,
+  "category": "food",
+  "category_conf": 0.66,
+  "date": "d_1405/07/10",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.97
+ },
+ {
+  "dim": "other-banks",
+  "case": "e5",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "240000",
+   "dir": "out",
+   "cat": [
+    "transport"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.8,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1654,
+   "output_tokens": 398
+  },
+  "amount": "n_240000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "transport",
+  "category_conf": 0.86,
+  "date": "written",
+  "date_conf": 0.78,
+  "tx": "yes",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 0.84
+ },
+ {
+  "dim": "other-banks",
+  "case": "e6",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "12000000",
+   "dir": "in",
+   "cat": [
+    "salary"
+   ],
+   "date": "d_1405/07/01",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.85,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1655,
+   "output_tokens": 412
+  },
+  "amount": "n_12000000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.99,
+  "category": "salary",
+  "category_conf": 1.0,
+  "date": "d_1405/07/01",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "other-banks",
+  "case": "e7",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "85000",
+   "dir": "out",
+   "cat": [
+    "bills"
+   ],
+   "date": "d_1405/07/09",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.72,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1640,
+   "output_tokens": 406
+  },
+  "amount": "n_85000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.99,
+  "category": "bills",
+  "category_conf": 1.0,
+  "date": "d_1405/07/09",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "other-banks",
+  "case": "e8",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "5000000",
+   "dir": "in",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 2.05,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1659,
+   "output_tokens": 417
+  },
+  "amount": "n_5000000",
+  "amount_conf": 1.0,
+  "direction": "ambiguous",
+  "direction_conf": 0.25,
+  "category": "uncategorized",
+  "category_conf": 0.54,
+  "date": "written",
+  "date_conf": 0.83,
+  "tx": "yes",
+  "tx_conf": 0.54,
+  "count": "one",
+  "count_conf": 0.89
+ },
+ {
+  "dim": "multi-bank",
+  "case": "f1",
+  "src": "REAL",
+  "run": 0,
+  "exp": {
+   "amt": "multi",
+   "dir": "out",
+   "count": "three_plus"
+  },
+  "lat": 1.75,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 2140,
+   "output_tokens": 524
+  },
+  "amount": "n_1500000",
+  "amount_conf": 0.7,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "cash_withdrawal",
+  "category_conf": 0.69,
+  "date": "d_0712-20:06",
+  "date_conf": 0.6,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "three_plus",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "multi-bank",
+  "case": "f2",
+  "src": "REAL",
+  "run": 0,
+  "exp": {
+   "amt": "multi",
+   "count": "two"
+  },
+  "lat": 1.88,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1917,
+   "output_tokens": 476
+  },
+  "amount": "n_100000000",
+  "amount_conf": 0.97,
+  "direction": "in",
+  "direction_conf": 0.57,
+  "category": "shopping",
+  "category_conf": 0.45,
+  "date": "d_0709-22:25",
+  "date_conf": 0.72,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "two",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "multi-bank",
+  "case": "f3",
+  "src": "REAL",
+  "run": 0,
+  "exp": {
+   "amt": "multi",
+   "count": "three_plus"
+  },
+  "lat": 1.55,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 2579,
+   "output_tokens": 622
+  },
+  "amount": "n_20051061",
+  "amount_conf": 0.26,
+  "direction": "out",
+  "direction_conf": 0.94,
+  "category": "loan_installment",
+  "category_conf": 0.55,
+  "date": "d_0708-15:04",
+  "date_conf": 0.4,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "three_plus",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "noise",
+  "case": "g1",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.89,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1693,
+   "output_tokens": 385
+  },
+  "amount": "n_200000",
+  "amount_conf": 0.47,
+  "direction": "ambiguous",
+  "direction_conf": 0.68,
+  "category": "shopping",
+  "category_conf": 0.93,
+  "date": "today",
+  "date_conf": 0.86,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "zero",
+  "count_conf": 0.86
+ },
+ {
+  "dim": "noise",
+  "case": "g2",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.6,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1617,
+   "output_tokens": 393
+  },
+  "amount": "n_480000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.87,
+  "category": "bills",
+  "category_conf": 1.0,
+  "date": "d_1405/07/25",
+  "date_conf": 0.62,
+  "tx": "no",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "noise",
+  "case": "g3",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.89,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1576,
+   "output_tokens": 391
+  },
+  "amount": "none",
+  "amount_conf": 0.99,
+  "direction": "ambiguous",
+  "direction_conf": 0.99,
+  "category": "uncategorized",
+  "category_conf": 0.99,
+  "date": "d_1405/07/10",
+  "date_conf": 1.0,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "zero",
+  "count_conf": 0.74
+ },
+ {
+  "dim": "noise",
+  "case": "g4",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.56,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1504,
+   "output_tokens": 360
+  },
+  "amount": "none",
+  "amount_conf": 0.96,
+  "direction": "ambiguous",
+  "direction_conf": 1.0,
+  "category": "uncategorized",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.93,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "zero",
+  "count_conf": 0.83
+ },
+ {
+  "dim": "noise",
+  "case": "g5",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.96,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1437,
+   "output_tokens": 346
+  },
+  "amount": "none",
+  "amount_conf": 1.0,
+  "direction": "ambiguous",
+  "direction_conf": 1.0,
+  "category": "uncategorized",
+  "category_conf": 0.99,
+  "date": "none",
+  "date_conf": 0.44,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "zero",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "noise",
+  "case": "g6",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.69,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1678,
+   "output_tokens": 399
+  },
+  "amount": "n_20051061",
+  "amount_conf": 0.94,
+  "direction": "out",
+  "direction_conf": 0.89,
+  "category": "loan_installment",
+  "category_conf": 1.0,
+  "date": "d_1405/07/20",
+  "date_conf": 0.95,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "noise",
+  "case": "g7",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.72,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1495,
+   "output_tokens": 365
+  },
+  "amount": "n_500000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "uncategorized",
+  "category_conf": 0.34,
+  "date": "written",
+  "date_conf": 0.76,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "robust",
+  "case": "h1",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "320000",
+   "dir": "out",
+   "date": "d_1405/07/06",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.73,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1803,
+   "output_tokens": 411
+  },
+  "amount": "n_320000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "entertainment",
+  "category_conf": 0.97,
+  "date": "d_1405/07/06",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.91
+ },
+ {
+  "dim": "robust",
+  "case": "h2",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "350",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.67,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1467,
+   "output_tokens": 361
+  },
+  "amount": "n_350",
+  "amount_conf": 0.96,
+  "direction": "ambiguous",
+  "direction_conf": 0.29,
+  "category": "uncategorized",
+  "category_conf": 0.54,
+  "date": "none",
+  "date_conf": 0.98,
+  "tx": "yes",
+  "tx_conf": 0.01,
+  "count": "one",
+  "count_conf": 0.9
+ },
+ {
+  "dim": "robust",
+  "case": "h3",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "120000",
+   "dir": "out",
+   "cat": [
+    "transport"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.55,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1480,
+   "output_tokens": 363
+  },
+  "amount": "n_120000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.51,
+  "category": "transport",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.98,
+  "tx": "yes",
+  "tx_conf": 0.12,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "robust",
+  "case": "h4",
+  "src": "DRAFT",
+  "run": 0,
+  "exp": {
+   "amt": "350",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 2.07,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1477,
+   "output_tokens": 357
+  },
+  "amount": "n_350",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.73,
+  "category": "food",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.95,
+  "tx": "yes",
+  "tx_conf": 0.5,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "robust",
+  "case": "h5",
+  "src": "REAL",
+  "run": 0,
+  "exp": {
+   "amt": "320000",
+   "dir": "out",
+   "cat": [
+    "entertainment"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.53,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1702,
+   "output_tokens": 411
+  },
+  "amount": "n_320000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "entertainment",
+  "category_conf": 1.0,
+  "date": "d_1405/07/06",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 0.52
+ },
+ {
+  "dim": "note-only",
+  "case": "a1",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "350",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.42,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1477,
+   "output_tokens": 357
+  },
+  "amount": "n_350",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.34,
+  "category": "food",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.95,
+  "tx": "no",
+  "tx_conf": 0.13,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "note-only",
+  "case": "a2",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "50000000",
+   "dir": "in",
+   "cat": [
+    "salary"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.06,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1485,
+   "output_tokens": 367
+  },
+  "amount": "n_50000000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.99,
+  "category": "salary",
+  "category_conf": 0.85,
+  "date": "none",
+  "date_conf": 0.81,
+  "tx": "yes",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "note-only",
+  "case": "a3",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "80000",
+   "dir": "out",
+   "cat": [
+    "transport"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.27,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1480,
+   "output_tokens": 361
+  },
+  "amount": "n_80000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.5,
+  "category": "transport",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.97,
+  "tx": "no",
+  "tx_conf": 0.37,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "note-only",
+  "case": "a4",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "200000",
+   "dir": "in",
+   "cat": [
+    "other_income"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.29,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1492,
+   "output_tokens": 364
+  },
+  "amount": "n_200000",
+  "amount_conf": 0.99,
+  "direction": "in",
+  "direction_conf": 0.4,
+  "category": "other_income",
+  "category_conf": 0.8,
+  "date": "none",
+  "date_conf": 0.9,
+  "tx": "yes",
+  "tx_conf": 0.95,
+  "count": "one",
+  "count_conf": 0.98
+ },
+ {
+  "dim": "note-only",
+  "case": "a5",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "none",
+   "tx": "yes"
+  },
+  "lat": 1.25,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1430,
+   "output_tokens": 342
+  },
+  "amount": "none",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "shopping",
+  "category_conf": 0.83,
+  "date": "today",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.98,
+  "count": "one",
+  "count_conf": 0.98
+ },
+ {
+  "dim": "words",
+  "case": "b1",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "450000",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 0.94,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1479,
+   "output_tokens": 363
+  },
+  "amount": "n_450000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.83,
+  "category": "food",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.87,
+  "tx": "yes",
+  "tx_conf": 0.46,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "words",
+  "case": "b2",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "none-expected-fail",
+   "dir": "out",
+   "cat": [
+    "rent"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.27,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1442,
+   "output_tokens": 344
+  },
+  "amount": "none",
+  "amount_conf": 1.0,
+  "direction": "ambiguous",
+  "direction_conf": 0.17,
+  "category": "rent",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.99,
+  "tx": "no",
+  "tx_conf": 0.89,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "words",
+  "case": "b3",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "none-expected-fail",
+   "dir": "out",
+   "cat": [
+    "entertainment"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.26,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1494,
+   "output_tokens": 364
+  },
+  "amount": "n_15000",
+  "amount_conf": 0.15,
+  "direction": "out",
+  "direction_conf": 0.85,
+  "category": "entertainment",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.99,
+  "tx": "no",
+  "tx_conf": 0.27,
+  "count": "one",
+  "count_conf": 0.65
+ },
+ {
+  "dim": "words",
+  "case": "b4",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "1500000",
+   "dir": "out",
+   "cat": [
+    "shopping"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.13,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1477,
+   "output_tokens": 365
+  },
+  "amount": "n_1500000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.49,
+  "category": "shopping",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.32,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "words",
+  "case": "b5",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "none-expected-fail",
+   "dir": "out",
+   "cat": [
+    "fuel"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.14,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1441,
+   "output_tokens": 342
+  },
+  "amount": "none",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "fuel",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.85,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "multi-item",
+  "case": "c1",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "multi",
+   "count": "two"
+  },
+  "lat": 1.19,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1556,
+   "output_tokens": 381
+  },
+  "amount": "n_450000",
+  "amount_conf": 0.62,
+  "direction": "ambiguous",
+  "direction_conf": 0.24,
+  "category": "entertainment",
+  "category_conf": 0.99,
+  "date": "none",
+  "date_conf": 1.0,
+  "tx": "no",
+  "tx_conf": 0.55,
+  "count": "two",
+  "count_conf": 0.97
+ },
+ {
+  "dim": "multi-item",
+  "case": "c2",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "multi",
+   "count": "three_plus"
+  },
+  "lat": 1.18,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1656,
+   "output_tokens": 393
+  },
+  "amount": "n_500000",
+  "amount_conf": 0.95,
+  "direction": "out",
+  "direction_conf": 0.59,
+  "category": "groceries",
+  "category_conf": 1.0,
+  "date": "today",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.26,
+  "count": "three_plus",
+  "count_conf": 0.92
+ },
+ {
+  "dim": "multi-item",
+  "case": "c3",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "multi",
+   "count": "two"
+  },
+  "lat": 1.29,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1575,
+   "output_tokens": 377
+  },
+  "amount": "n_200000",
+  "amount_conf": 0.47,
+  "direction": "out",
+  "direction_conf": 0.91,
+  "category": "fuel",
+  "category_conf": 0.61,
+  "date": "none",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.48,
+  "count": "two",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "multi-item",
+  "case": "c4",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "340000",
+   "cat": [
+    "groceries"
+   ],
+   "count": "one"
+  },
+  "lat": 1.28,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1601,
+   "output_tokens": 378
+  },
+  "amount": "n_340000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "groceries",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.96,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.79
+ },
+ {
+  "dim": "date",
+  "case": "d1",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "250",
+   "date": "yesterday",
+   "cat": [
+    "groceries",
+    "food"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.12,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1484,
+   "output_tokens": 361
+  },
+  "amount": "n_250",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.86,
+  "category": "groceries",
+  "category_conf": 0.99,
+  "date": "yesterday",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.94,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "date",
+  "case": "d2",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "180000",
+   "date": "day_before",
+   "cat": [
+    "health"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.06,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1495,
+   "output_tokens": 364
+  },
+  "amount": "n_180000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.94,
+  "category": "health",
+  "category_conf": 1.0,
+  "date": "day_before",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.96,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "date",
+  "case": "d3",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "400000",
+   "date": "d_1405/07/02",
+   "cat": [
+    "rent"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.31,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1587,
+   "output_tokens": 392
+  },
+  "amount": "n_400000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.46,
+  "category": "rent",
+  "category_conf": 1.0,
+  "date": "d_1405/07/02",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.52,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "date",
+  "case": "d4",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "90000",
+   "date": "written",
+   "cat": [
+    "education"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.2,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1479,
+   "output_tokens": 361
+  },
+  "amount": "n_90000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.88,
+  "category": "education",
+  "category_conf": 1.0,
+  "date": "written",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.9,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "date",
+  "case": "d5",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "200000",
+   "date": "written",
+   "cat": [
+    "health"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.14,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1538,
+   "output_tokens": 372
+  },
+  "amount": "n_200000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.45,
+  "category": "health",
+  "category_conf": 1.0,
+  "date": "written",
+  "date_conf": 0.95,
+  "tx": "yes",
+  "tx_conf": 0.65,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "date",
+  "case": "d6",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "180000",
+   "date": "today",
+   "cat": [
+    "transport"
+   ],
+   "tx": "yes"
+  },
+  "lat": 1.08,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1483,
+   "output_tokens": 363
+  },
+  "amount": "n_180000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.83,
+  "category": "transport",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.98,
+  "tx": "yes",
+  "tx_conf": 0.34,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "other-banks",
+  "case": "e1",
+  "src": "REAL",
+  "run": 1,
+  "exp": {
+   "amt": "4509614",
+   "dir": "out",
+   "cat": [
+    "shopping"
+   ],
+   "date": "d_1405/07/11",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.34,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 2306,
+   "output_tokens": 532
+  },
+  "amount": "n_4509614",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "shopping",
+  "category_conf": 1.0,
+  "date": "d_1405/07/11",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "other-banks",
+  "case": "e2",
+  "src": "REAL",
+  "run": 1,
+  "exp": {
+   "amt": "68000000",
+   "dir": "in",
+   "date": "d_1405/06/28",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.05,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 2012,
+   "output_tokens": 480
+  },
+  "amount": "n_68000000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.91,
+  "category": "uncategorized",
+  "category_conf": 0.82,
+  "date": "d_1405/06/28",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "other-banks",
+  "case": "e3",
+  "src": "REAL",
+  "run": 1,
+  "exp": {
+   "amt": "100000000",
+   "dir": "in",
+   "date": "d_0709-22:25",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.17,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1695,
+   "output_tokens": 429
+  },
+  "amount": "n_100000000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.92,
+  "category": "other_income",
+  "category_conf": 0.89,
+  "date": "d_0709-22:25",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.95,
+  "count": "one",
+  "count_conf": 0.74
+ },
+ {
+  "dim": "other-banks",
+  "case": "e4",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "1200000",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "date": "d_1405/07/10",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.24,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1667,
+   "output_tokens": 409
+  },
+  "amount": "n_1200000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.98,
+  "category": "food",
+  "category_conf": 0.59,
+  "date": "d_1405/07/10",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.95
+ },
+ {
+  "dim": "other-banks",
+  "case": "e5",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "240000",
+   "dir": "out",
+   "cat": [
+    "transport"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.33,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1654,
+   "output_tokens": 398
+  },
+  "amount": "n_240000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "transport",
+  "category_conf": 0.77,
+  "date": "written",
+  "date_conf": 0.78,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.88
+ },
+ {
+  "dim": "other-banks",
+  "case": "e6",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "12000000",
+   "dir": "in",
+   "cat": [
+    "salary"
+   ],
+   "date": "d_1405/07/01",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.13,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1655,
+   "output_tokens": 412
+  },
+  "amount": "n_12000000",
+  "amount_conf": 1.0,
+  "direction": "in",
+  "direction_conf": 0.99,
+  "category": "salary",
+  "category_conf": 1.0,
+  "date": "d_1405/07/01",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "other-banks",
+  "case": "e7",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "85000",
+   "dir": "out",
+   "cat": [
+    "bills"
+   ],
+   "date": "d_1405/07/09",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.19,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1640,
+   "output_tokens": 406
+  },
+  "amount": "n_85000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.99,
+  "category": "bills",
+  "category_conf": 1.0,
+  "date": "d_1405/07/09",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "other-banks",
+  "case": "e8",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "5000000",
+   "dir": "in",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.31,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1659,
+   "output_tokens": 415
+  },
+  "amount": "n_5000000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.24,
+  "category": "uncategorized",
+  "category_conf": 0.61,
+  "date": "written",
+  "date_conf": 0.83,
+  "tx": "yes",
+  "tx_conf": 0.53,
+  "count": "one",
+  "count_conf": 0.9
+ },
+ {
+  "dim": "multi-bank",
+  "case": "f1",
+  "src": "REAL",
+  "run": 1,
+  "exp": {
+   "amt": "multi",
+   "dir": "out",
+   "count": "three_plus"
+  },
+  "lat": 1.08,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 2140,
+   "output_tokens": 524
+  },
+  "amount": "n_1500000",
+  "amount_conf": 0.62,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "cash_withdrawal",
+  "category_conf": 0.74,
+  "date": "d_0712-20:06",
+  "date_conf": 0.57,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "three_plus",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "multi-bank",
+  "case": "f2",
+  "src": "REAL",
+  "run": 1,
+  "exp": {
+   "amt": "multi",
+   "count": "two"
+  },
+  "lat": 1.23,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1917,
+   "output_tokens": 476
+  },
+  "amount": "n_100000000",
+  "amount_conf": 0.96,
+  "direction": "in",
+  "direction_conf": 0.58,
+  "category": "shopping",
+  "category_conf": 0.43,
+  "date": "d_0709-22:25",
+  "date_conf": 0.74,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "two",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "multi-bank",
+  "case": "f3",
+  "src": "REAL",
+  "run": 1,
+  "exp": {
+   "amt": "multi",
+   "count": "three_plus"
+  },
+  "lat": 1.26,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 2579,
+   "output_tokens": 622
+  },
+  "amount": "n_20051061",
+  "amount_conf": 0.28,
+  "direction": "out",
+  "direction_conf": 0.95,
+  "category": "loan_installment",
+  "category_conf": 0.57,
+  "date": "d_0708-15:04",
+  "date_conf": 0.33,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "three_plus",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "noise",
+  "case": "g1",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.16,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1693,
+   "output_tokens": 385
+  },
+  "amount": "n_200000",
+  "amount_conf": 0.44,
+  "direction": "ambiguous",
+  "direction_conf": 0.74,
+  "category": "shopping",
+  "category_conf": 0.92,
+  "date": "today",
+  "date_conf": 0.88,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "zero",
+  "count_conf": 0.89
+ },
+ {
+  "dim": "noise",
+  "case": "g2",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.06,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1617,
+   "output_tokens": 393
+  },
+  "amount": "n_480000",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.86,
+  "category": "bills",
+  "category_conf": 1.0,
+  "date": "d_1405/07/25",
+  "date_conf": 0.65,
+  "tx": "no",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "noise",
+  "case": "g3",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.2,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1576,
+   "output_tokens": 391
+  },
+  "amount": "none",
+  "amount_conf": 0.99,
+  "direction": "ambiguous",
+  "direction_conf": 0.99,
+  "category": "uncategorized",
+  "category_conf": 0.98,
+  "date": "d_1405/07/10",
+  "date_conf": 1.0,
+  "tx": "no",
+  "tx_conf": 0.99,
+  "count": "zero",
+  "count_conf": 0.72
+ },
+ {
+  "dim": "noise",
+  "case": "g4",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.11,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1504,
+   "output_tokens": 360
+  },
+  "amount": "none",
+  "amount_conf": 0.97,
+  "direction": "ambiguous",
+  "direction_conf": 1.0,
+  "category": "uncategorized",
+  "category_conf": 0.99,
+  "date": "none",
+  "date_conf": 0.93,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "zero",
+  "count_conf": 0.9
+ },
+ {
+  "dim": "noise",
+  "case": "g5",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.17,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1437,
+   "output_tokens": 346
+  },
+  "amount": "none",
+  "amount_conf": 1.0,
+  "direction": "ambiguous",
+  "direction_conf": 1.0,
+  "category": "uncategorized",
+  "category_conf": 0.99,
+  "date": "written",
+  "date_conf": 0.38,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "zero",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "noise",
+  "case": "g6",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.16,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1678,
+   "output_tokens": 399
+  },
+  "amount": "n_20051061",
+  "amount_conf": 0.96,
+  "direction": "out",
+  "direction_conf": 0.9,
+  "category": "loan_installment",
+  "category_conf": 1.0,
+  "date": "d_1405/07/20",
+  "date_conf": 0.95,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 1.0
+ },
+ {
+  "dim": "noise",
+  "case": "g7",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "tx": "no",
+   "count": "zero"
+  },
+  "lat": 1.08,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1495,
+   "output_tokens": 363
+  },
+  "amount": "n_500000",
+  "amount_conf": 0.98,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "other",
+  "category_conf": 0.34,
+  "date": "written",
+  "date_conf": 0.72,
+  "tx": "no",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.98
+ },
+ {
+  "dim": "robust",
+  "case": "h1",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "320000",
+   "dir": "out",
+   "date": "d_1405/07/06",
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.22,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1803,
+   "output_tokens": 411
+  },
+  "amount": "n_320000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "entertainment",
+  "category_conf": 0.96,
+  "date": "d_1405/07/06",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 1.0,
+  "count": "one",
+  "count_conf": 0.92
+ },
+ {
+  "dim": "robust",
+  "case": "h2",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "350",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.12,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1467,
+   "output_tokens": 361
+  },
+  "amount": "n_350",
+  "amount_conf": 0.97,
+  "direction": "ambiguous",
+  "direction_conf": 0.31,
+  "category": "uncategorized",
+  "category_conf": 0.47,
+  "date": "none",
+  "date_conf": 0.97,
+  "tx": "yes",
+  "tx_conf": 0.01,
+  "count": "one",
+  "count_conf": 0.88
+ },
+ {
+  "dim": "robust",
+  "case": "h3",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "120000",
+   "dir": "out",
+   "cat": [
+    "transport"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.1,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1480,
+   "output_tokens": 363
+  },
+  "amount": "n_120000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 0.52,
+  "category": "transport",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.98,
+  "tx": "yes",
+  "tx_conf": 0.16,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "robust",
+  "case": "h4",
+  "src": "DRAFT",
+  "run": 1,
+  "exp": {
+   "amt": "350",
+   "dir": "out",
+   "cat": [
+    "food"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.02,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1477,
+   "output_tokens": 357
+  },
+  "amount": "n_350",
+  "amount_conf": 0.99,
+  "direction": "out",
+  "direction_conf": 0.74,
+  "category": "food",
+  "category_conf": 1.0,
+  "date": "none",
+  "date_conf": 0.93,
+  "tx": "yes",
+  "tx_conf": 0.51,
+  "count": "one",
+  "count_conf": 0.99
+ },
+ {
+  "dim": "robust",
+  "case": "h5",
+  "src": "REAL",
+  "run": 1,
+  "exp": {
+   "amt": "320000",
+   "dir": "out",
+   "cat": [
+    "entertainment"
+   ],
+   "tx": "yes",
+   "count": "one"
+  },
+  "lat": 1.28,
+  "err": null,
+  "tries": 1,
+  "usage": {
+   "input_tokens": 1702,
+   "output_tokens": 411
+  },
+  "amount": "n_320000",
+  "amount_conf": 1.0,
+  "direction": "out",
+  "direction_conf": 1.0,
+  "category": "entertainment",
+  "category_conf": 1.0,
+  "date": "d_1405/07/06",
+  "date_conf": 1.0,
+  "tx": "yes",
+  "tx_conf": 0.99,
+  "count": "one",
+  "count_conf": 0.58
+ }
+]
