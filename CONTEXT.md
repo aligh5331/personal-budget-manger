@@ -1,6 +1,6 @@
 # Personal Budget Manager
 
-A single-user budget tracker. The owner records money spent or received by talking to a Bale bot, mostly with Persian voice notes.
+A single-user budget tracker. The owner records money spent or received by sending text to a Bale bot, mostly forwarded bank messages with a short note. Voice input is planned for a later version.
 
 ## Language
 
@@ -9,15 +9,15 @@ The one person allowed to use the bot. Messages from any other Bale account are 
 _Avoid_: User, account holder
 
 **Voice note**:
-A Bale voice message from the Owner, in Persian, describing one Transaction.
+A Bale voice message from the Owner, in Persian, describing one Transaction. Not part of v1 (see `docs/adr/0001-text-input-first.md`).
 _Avoid_: Audio, recording
 
 **Text note**:
-A Bale text message from the Owner describing a Transaction. It may be a forwarded or pasted bank deposit SMS, with or without extra words from the Owner.
+A Bale text message from the Owner describing a Transaction. In v0.1 it is a forwarded bank message (personal details stripped by the Owner) followed by an optional note of the Owner's own words, such as a category word or a short description. The note may contain typos and wins over the bank's own label. It may also be the Owner's words alone, with no bank message.
 _Avoid_: Message, SMS (the SMS is the content, not the thing the bot receives)
 
 **Input**:
-Either a Voice note or a Text note; the two ways the Owner reports a Transaction.
+A Text note in v1. A Voice note is a second kind of Input, planned for later.
 
 **Follow-up**:
 The bot's question when an Input lacks something a Transaction needs. Asked at most once per Transaction.

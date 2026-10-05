@@ -1,5 +1,7 @@
 # Persian speech-to-text options and prices (ticket #3)
 
+> Parked: v1 is text input only (see `docs/adr/0001-text-input-first.md`). Kept for when speech input returns.
+
 Researched 2026-10-05. Question: which STT models can transcribe a Persian Voice note, through Metis or v1m, and what do they cost?
 
 ## Answer
