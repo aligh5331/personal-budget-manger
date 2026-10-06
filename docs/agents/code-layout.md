@@ -16,7 +16,7 @@ Where things go, for agents implementing tickets of spec #30. Domain words come 
 | `internal/storage` | One small interface per aggregate, one file each (`settings.go`, later `transactions.go`, `categories.go`, ...). Methods named by intent. |
 | `internal/storage/sqlite` | The implementation, one file per aggregate, plus `migrations/`. |
 | `internal/extract` | `Extractor` interface, the `Result`/`Item` the model returns, and `Metis` (OpenAI-compatible chat, strict json_schema, one retry on `gpt-5-mini`). `extractfake` is the scripted fake (`h.Extractor` in `bottest`). |
-| `internal/inputrules` | The Input rules, pure: `Apply(Input{Text, Extraction, Now}) Outcome` turns the model's reading into `Draft`s, each carrying the one `FollowUp` field it still needs. One file per rule family (`normalize.go`, `direction.go`, `date.go`, `note.go`); add rules there, behind `Apply`. |
+| `internal/inputrules` | The Input rules, pure: `Apply(Input{Text, Extraction, Now}) Outcome` turns the model's reading into `Draft`s, each carrying the one `FollowUp` field it still needs. One file per rule family (`normalize.go`, `direction.go`, `date.go`, `reldate.go`, `note.go`, `noteamount.go`); add rules there, behind `Apply`. |
 | `internal/jalali` | Jalali/Gregorian conversion (`FromTime`, `Date.At`), `Format` ("14 Mehr 1405"), `MonthName`, `DaysInMonth`. |
 | `internal/backup` | Daily and startup `VACUUM INTO` snapshots in `DATA_DIR/backups`, retention, upload to the Owner. Restore: `docs/runbooks/restore-backup.md`. |
 | `internal/health` | `/healthz` from a list of named checks. |

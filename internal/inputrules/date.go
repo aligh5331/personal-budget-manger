@@ -24,11 +24,18 @@ var (
 // date is checked against the text. When the year is printed it is used as
 // is. When only month and day are printed (Melli SMS "0704-19:30"), the year
 // is the current Jalali year, or the one before if that date is still in the
-// future. The time is kept only if printed. Without a bank date the
-// Transaction gets now.
-func occurredAt(d doc, it extract.Item, now time.Time) (time.Time, bool) {
+// future. The time is kept only if printed. Without a bank date a relative
+// date in the note counts (see noteDate); the note is the whole Input when
+// it holds no bank message. With no date at all the Transaction gets now.
+func occurredAt(d doc, it extract.Item, now time.Time, note string) (time.Time, bool) {
 	date, ok := bankDate(d.joined(), strings.TrimSpace(Normalize(it.Date)), jalali.FromTime(now))
 	if !ok {
+		if !hasBankMessage(d) {
+			note = d.joined()
+		}
+		if t, ok := noteDate(note, now); ok {
+			return t, false
+		}
 		return now, false
 	}
 	if h, m, ok := printedTime(d.joined(), strings.TrimSpace(Normalize(it.Time))); ok {
