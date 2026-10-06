@@ -36,6 +36,10 @@ type Poller struct {
 	Handle func(ctx context.Context, u bale.Update) error
 	// Offset is the first update_id to ask for (highest processed + 1).
 	Offset int64
+	// Wait, if set, is called after each non-empty batch and blocks until
+	// that batch is processed (normally Worker.WaitIdle), so the next
+	// getUpdates never confirms an update the worker has not handled.
+	Wait func(ctx context.Context) error
 
 	Clock clock.Clock
 	Log   *slog.Logger
@@ -51,13 +55,47 @@ type Poller struct {
 
 // Run polls until ctx ends. It returns ctx's error.
 func (p *Poller) Run(ctx context.Context) error {
+	return p.RunUntil(ctx, nil)
+}
+
+// RunUntil polls until ctx ends or stop is closed. A stop lets the in-flight
+// getUpdates finish and hands over its updates, then commits the offset (a
+// getUpdates with timeout 0, repeated while it returns more updates, which
+// are handed over too) so Bale does not deliver them again, and returns nil.
+// A failed commit returns its error; nothing fetched is lost either way.
+func (p *Poller) RunUntil(ctx context.Context, stop <-chan struct{}) error {
 	p.mu.Lock()
 	p.started = p.Clock.Now()
 	p.mu.Unlock()
 
+	// waitCtx also ends on stop: sleeps and idle waits are cut short, the
+	// in-flight getUpdates is not.
+	waitCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	if stop != nil {
+		go func() {
+			select {
+			case <-stop:
+				cancel()
+			case <-waitCtx.Done():
+			}
+		}()
+	}
+	stopped := func() bool {
+		select {
+		case <-stop:
+			return true
+		default:
+			return false
+		}
+	}
+
 	failures := 0
 	triedDeleteWebhook := false
 	for ctx.Err() == nil {
+		if stopped() {
+			return p.commit(ctx)
+		}
 		us, err := p.Bale.GetUpdates(ctx, bale.GetUpdatesParams{Offset: p.Offset, Limit: PollLimit, Timeout: PollTimeout})
 		if err == nil {
 			failures = 0
@@ -65,13 +103,11 @@ func (p *Poller) Run(ctx context.Context) error {
 			p.mu.Lock()
 			p.lastSuccess = p.Clock.Now()
 			p.mu.Unlock()
-			for _, u := range us {
-				if err := p.Handle(ctx, u); err != nil {
-					return err
-				}
-				if u.UpdateID >= p.Offset {
-					p.Offset = u.UpdateID + 1
-				}
+			if err := p.handOver(ctx, us); err != nil {
+				return err
+			}
+			if len(us) > 0 && p.Wait != nil {
+				_ = p.Wait(waitCtx) // cut short by stop or ctx; the loop checks both
 			}
 			continue
 		}
@@ -92,20 +128,45 @@ func (p *Poller) Run(ctx context.Context) error {
 		var ae *bale.APIError
 		if errors.As(err, &ae) && ae.RetryAfter > 0 {
 			p.Log.Warn("getUpdates rate limited", "retry_after", ae.RetryAfter)
-			if err := p.sleep(ctx, ae.RetryAfter); err != nil {
-				break
-			}
+			_ = p.sleep(waitCtx, ae.RetryAfter)
 			continue
 		}
 
 		failures++
 		d := p.backoff(failures)
 		p.Log.Warn("getUpdates failed", "err", err, "failures", failures, "retry_in", d)
-		if err := p.sleep(ctx, d); err != nil {
-			break
-		}
+		_ = p.sleep(waitCtx, d)
 	}
 	return ctx.Err()
+}
+
+// handOver passes us to Handle in order and advances the offset past each.
+func (p *Poller) handOver(ctx context.Context, us []bale.Update) error {
+	for _, u := range us {
+		if err := p.Handle(ctx, u); err != nil {
+			return err
+		}
+		if u.UpdateID >= p.Offset {
+			p.Offset = u.UpdateID + 1
+		}
+	}
+	return nil
+}
+
+// commit confirms every handed-over update to Bale.
+func (p *Poller) commit(ctx context.Context) error {
+	for {
+		us, err := p.Bale.GetUpdates(ctx, bale.GetUpdatesParams{Offset: p.Offset, Limit: PollLimit})
+		if err != nil {
+			return fmt.Errorf("stop polling: commit offset: %w", err)
+		}
+		if len(us) == 0 {
+			return nil
+		}
+		if err := p.handOver(ctx, us); err != nil {
+			return err
+		}
+	}
 }
 
 // backoff is 1s doubled per consecutive failure, capped at 60s, with ±20%

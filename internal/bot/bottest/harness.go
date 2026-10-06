@@ -12,6 +12,7 @@ import (
 	"log/slog"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -22,6 +23,7 @@ import (
 	"github.com/aligh5331/personal-budget-manger/internal/clock"
 	"github.com/aligh5331/personal-budget-manger/internal/extract/extractfake"
 	"github.com/aligh5331/personal-budget-manger/internal/storage/sqlite"
+	"github.com/aligh5331/personal-budget-manger/internal/updates"
 )
 
 // OwnerID is the Owner's Bale user id (and private chat id) in tests.
@@ -32,6 +34,12 @@ const StrangerID int64 = 777
 
 // Version is the version string the harness bot reports.
 const Version = "v0.0.0-test"
+
+// Webhook settings the harness configures by default (UpdatesConfig).
+const (
+	WebhookURL    = "https://bot.example.com"
+	WebhookSecret = "s3cr3t-s3cr3t-s3cr3t-s3cr3t-0042" // 32 characters
+)
 
 // Start is the harness clock's initial time: 14 Mehr 1405, 12:00 in Tehran.
 var Start = time.Date(2026, 10, 6, 12, 0, 0, 0, clock.Tehran())
@@ -48,6 +56,13 @@ type Harness struct {
 	// h.Extractor.Return(...) before sending an Input.
 	Extractor *extractfake.Fake
 
+	// Updates is the webhook/polling switch, wired to the fake Bale client.
+	// It is idle until StartUpdates; Restart rebuilds it from UpdatesConfig.
+	Updates       *updates.Manager
+	UpdatesConfig updates.ModeConfig
+	worker        *updates.Worker
+	stopUpdates   func()
+
 	dbPath        string
 	nextUpdateID  int64
 	nextMessageID int64
@@ -61,6 +76,7 @@ func New(t testing.TB) *Harness {
 		Bale:          balefake.New(),
 		Clock:         clock.NewFake(Start),
 		Logs:          &LogRecorder{},
+		UpdatesConfig: updates.ModeConfig{WebhookURL: WebhookURL, SecretPath: WebhookSecret},
 		Extractor:     extractfake.New(),
 		dbPath:        filepath.Join(t.TempDir(), "bot.db"),
 		nextUpdateID:  1,
@@ -91,6 +107,7 @@ func (h *Harness) Deps() bot.Deps {
 		Log:      slog.New(h.Logs),
 		OwnerID:  OwnerID,
 		Version:  Version,
+		Updates:  h.Updates,
 
 		Extractor:    h.Extractor,
 		Transactions: h.Store,
@@ -98,6 +115,25 @@ func (h *Harness) Deps() bot.Deps {
 }
 
 func (h *Harness) newBot() *bot.Bot {
+	h.worker = updates.NewWorker(func(ctx context.Context, u bale.Update) error {
+		err := h.Bot.HandleUpdate(ctx, u)
+		if err != nil {
+			h.t.Errorf("HandleUpdate(%d): %v", u.UpdateID, err)
+		}
+		return err
+	}, slog.New(h.Logs))
+	h.Updates = &updates.Manager{
+		Bale:   h.Bale,
+		Store:  h.Store,
+		Worker: h.worker,
+		Clock:  h.Clock,
+		Log:    slog.New(h.Logs),
+		Config: h.UpdatesConfig,
+		Notify: func(ctx context.Context, text string) error {
+			_, err := h.Bale.SendMessage(ctx, bale.SendMessageParams{ChatID: OwnerID, Text: text})
+			return err
+		},
+	}
 	b, err := bot.New(h.Deps())
 	if err != nil {
 		h.t.Fatalf("bot.New: %v", err)
@@ -105,20 +141,74 @@ func (h *Harness) newBot() *bot.Bot {
 	return b
 }
 
+// StartUpdates boots the update source as the app does at startup (mode from
+// the DB, else UpdatesConfig.ModeDefault, else polling, asserted against the
+// fake Bale client) and starts the in-order worker. From then on Feed goes
+// through the worker, as in production. Tests that don't call it never poll.
+func (h *Harness) StartUpdates() {
+	h.t.Helper()
+	h.Updates.Config = h.UpdatesConfig
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		h.worker.Run(ctx)
+	}()
+	h.stopUpdates = func() {
+		cancel()
+		<-done
+		h.Updates.Wait()
+		h.stopUpdates = nil
+	}
+	h.t.Cleanup(func() {
+		if h.stopUpdates != nil {
+			h.stopUpdates()
+		}
+	})
+	if err := h.Updates.Start(ctx); err != nil {
+		h.t.Fatalf("start updates: %v", err)
+	}
+}
+
 // Restart simulates a process restart: the database is reopened from disk and
-// a new Bot is built. The fake Bale client and clock are kept.
+// a new Bot is built. The fake Bale client and clock are kept. A started
+// update source is stopped and booted again.
 func (h *Harness) Restart() {
 	h.t.Helper()
+	started := h.stopUpdates != nil
+	if started {
+		h.stopUpdates()
+	}
 	_ = h.Store.Close()
 	h.Store = openStore(h.t, h.dbPath)
 	h.Bot = h.newBot()
+	if started {
+		h.StartUpdates()
+	}
 }
 
-// Feed hands one update to the bot core and fails the test on error.
+// Feed hands one update to the bot core and fails the test on error. After
+// StartUpdates it goes through the worker and waits until it is handled.
 func (h *Harness) Feed(u bale.Update) {
 	h.t.Helper()
+	if h.stopUpdates != nil {
+		_ = h.worker.Enqueue(context.Background(), u)
+		if err := h.worker.WaitIdle(context.Background()); err != nil {
+			h.t.Fatalf("wait for update %d: %v", u.UpdateID, err)
+		}
+		return
+	}
 	if err := h.Bot.HandleUpdate(context.Background(), u); err != nil {
 		h.t.Fatalf("HandleUpdate(%d): %v", u.UpdateID, err)
+	}
+}
+
+// WaitIdle waits until the worker has handled everything queued so far
+// (updates delivered by the fake Bale client through polling).
+func (h *Harness) WaitIdle() {
+	h.t.Helper()
+	if err := h.worker.WaitIdle(context.Background()); err != nil {
+		h.t.Fatal(err)
 	}
 }
 
@@ -221,6 +311,23 @@ func (r *LogRecorder) WithAttrs([]slog.Attr) slog.Handler { return r }
 
 // WithGroup implements slog.Handler (groups are dropped).
 func (r *LogRecorder) WithGroup(string) slog.Handler { return r }
+
+// Mentions reports whether any record's message or attribute values contain s.
+func (r *LogRecorder) Mentions(s string) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for _, rec := range r.records {
+		found := strings.Contains(rec.Message, s)
+		rec.Attrs(func(a slog.Attr) bool {
+			found = found || strings.Contains(a.String(), s)
+			return !found
+		})
+		if found {
+			return true
+		}
+	}
+	return false
+}
 
 // Count returns how many records have the given message.
 func (r *LogRecorder) Count(msg string) int {

@@ -25,11 +25,24 @@ type Deps struct {
 	Log      *slog.Logger
 	OwnerID  int64
 	Version  string
+	// Updates is how updates reach the bot (webhook or polling); /mode
+	// shows and switches it. Nil disables /mode.
+	Updates UpdateSource
 
 	// Extractor reads Inputs (#32).
 	Extractor extract.Extractor
 	// Transactions stores Transactions (#32).
 	Transactions storage.Transactions
+}
+
+// UpdateSource is the switchable update source (internal/updates.Manager).
+type UpdateSource interface {
+	// Mode returns the active mode ("polling" or "webhook") and, when it
+	// differs from the Owner's saved choice after a fallback, why.
+	Mode() (mode, note string)
+	// SwitchMode switches to mode and saves the choice. On failure the
+	// previous mode stays active and the error says why.
+	SwitchMode(ctx context.Context, mode string) error
 }
 
 // Bot is the bot core. HandleUpdate must be called from one goroutine at a

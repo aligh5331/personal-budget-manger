@@ -8,7 +8,10 @@ import (
 	"strconv"
 )
 
-const settingLastUpdateID = "last_update_id"
+const (
+	settingLastUpdateID = "last_update_id"
+	settingUpdateMode   = "update_mode"
+)
 
 func (s *Store) getSetting(ctx context.Context, name string) (string, bool, error) {
 	var v string
@@ -44,6 +47,16 @@ func (s *Store) LastUpdateID(ctx context.Context) (int64, bool, error) {
 		return 0, false, fmt.Errorf("setting %s: %w", settingLastUpdateID, err)
 	}
 	return id, true, nil
+}
+
+// UpdateMode implements storage.Settings.
+func (s *Store) UpdateMode(ctx context.Context) (string, bool, error) {
+	return s.getSetting(ctx, settingUpdateMode)
+}
+
+// SaveUpdateMode implements storage.Settings.
+func (s *Store) SaveUpdateMode(ctx context.Context, mode string) error {
+	return s.putSetting(ctx, settingUpdateMode, mode)
 }
 
 // SaveLastUpdateID implements storage.Settings.
