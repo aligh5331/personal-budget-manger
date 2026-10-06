@@ -17,7 +17,7 @@ Where things go, for agents implementing tickets of spec #30. Domain words come 
 | `internal/storage/sqlite` | The implementation, one file per aggregate, plus `migrations/`. |
 | `internal/extract` | `Extractor` interface, the `Result`/`Item` the model returns, and `Metis` (OpenAI-compatible chat, strict json_schema, one retry on `gpt-5-mini`). `extractfake` is the scripted fake (`h.Extractor` in `bottest`). |
 | `internal/categorize` | `Categorizer` interface (`Categorize(ctx, text, []Option) (Pick, error)`) and `Jev` (Metis TypeSafe Choice question, one retry on 5xx, timeout or unreadable reply). Option keys are slugs of the name (`c<id>` fallback). `categorizefake` is the scripted fake (`h.Categorizer.Choose(name, conf)`, `.Fail(err)`, `.Calls()`; unscripted it picks Uncategorized). |
-| `internal/inputrules` | The Input rules, pure: `Apply(Input{Text, Extraction, Now}) Outcome` turns the model's reading into `Draft`s, each carrying the one `FollowUp` field it still needs. One file per rule family (`normalize.go`, `direction.go`, `date.go`, `note.go`); add rules there, behind `Apply`. |
+| `internal/inputrules` | The Input rules, pure: `Apply(Input{Text, Extraction, Now}) Outcome` turns the model's reading into `Draft`s, each carrying the one `FollowUp` field it still needs. One file per rule family (`normalize.go`, `direction.go`, `date.go`, `reldate.go`, `note.go`, `noteamount.go`); add rules there, behind `Apply`. |
 | `internal/jalali` | Jalali/Gregorian conversion (`FromTime`, `Date.At`), `Format` ("14 Mehr 1405"), `MonthName`, `DaysInMonth`. |
 | `internal/backup` | Daily and startup `VACUUM INTO` snapshots in `DATA_DIR/backups`, retention, upload to the Owner. Restore: `docs/runbooks/restore-backup.md`. |
 | `internal/health` | `/healthz` from a list of named checks. |
@@ -35,6 +35,7 @@ Register handlers from an `init` in a new file instead of editing a shared switc
 - Text notes: `input.go` is the Input pipeline (extract, `inputrules.Apply`, save, confirm), one function per step. Extend a step there; don't add a second text handler.
 - Transaction buttons all share prefix `t`. Add an action with `RegisterTransactionAction("edit", fn)` in `cb_<name>.go`, and a button on every confirmation with `RegisterConfirmationButton(ConfirmationButton{Order, Label, Action})` (Undo is 10). `TransactionData(id, action)` builds the data.
 - `confirmation.go` renders the confirmation. `FormatToman` and `FormatDate` are the shared display helpers. A `ConfirmationButton` may set `Shown(tx)` to hide itself for some Transactions (the [Category] button is hidden on internal transfers).
+- `cmd_export.go` is `/export` (UTF-8 CSV with BOM, one row per Transaction). Its `exportCategoryName` reads the Category name (archived ones too); a new stored column goes into `exportHeader` and the row.
 - Transaction action arguments: `t:<id>:<action>:<arg>`; the handler reads `<arg>` with `TransactionArg(q)`. `TransactionData(id, "cat:7")` builds one.
 
 ### Categories (#35)

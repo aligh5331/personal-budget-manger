@@ -74,6 +74,27 @@ func (s *Store) SetOwnerCategory(ctx context.Context, id, categoryID int64) (boo
 	return n > 0, nil
 }
 
+// AllTransactions implements storage.Transactions.
+func (s *Store) AllTransactions(ctx context.Context) ([]storage.Transaction, error) {
+	rows, err := s.db.QueryContext(ctx, `SELECT `+transactionColumns+` FROM transactions ORDER BY id`)
+	if err != nil {
+		return nil, fmt.Errorf("list transactions: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+	var all []storage.Transaction
+	for rows.Next() {
+		t, err := scanTransaction(rows)
+		if err != nil {
+			return nil, fmt.Errorf("list transactions: %w", err)
+		}
+		all = append(all, t)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("list transactions: %w", err)
+	}
+	return all, nil
+}
+
 // scanTransaction reads one row selected with transactionColumns.
 func scanTransaction(row interface{ Scan(...any) error }) (storage.Transaction, error) {
 	var (

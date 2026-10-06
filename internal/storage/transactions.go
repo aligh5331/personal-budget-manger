@@ -66,4 +66,6 @@ type Transactions interface {
 	// overwrites the Owner's choice. updated is false when the Transaction
 	// is gone.
 	SetOwnerCategory(ctx context.Context, id, categoryID int64) (updated bool, err error)
+	// AllTransactions returns every Transaction, oldest id first (/export).
+	AllTransactions(ctx context.Context) ([]Transaction, error)
 }
