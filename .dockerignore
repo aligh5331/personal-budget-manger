@@ -1,0 +1,10 @@
+.git
+.github
+.idea
+.claude
+.env
+data
+samples
+docs
+scripts
+*.md

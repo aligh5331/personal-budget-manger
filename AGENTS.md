@@ -7,3 +7,7 @@ Issues live in this repo's GitHub Issues, managed via the `gh` CLI. See `docs/ag
 ### Domain docs
 
 Single-context layout (root `CONTEXT.md` + `docs/adr/`). See `docs/agents/domain.md`.
+
+### Code layout
+
+Where packages, commands, migrations and tests go. See `docs/agents/code-layout.md`.
