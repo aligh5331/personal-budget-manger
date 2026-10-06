@@ -66,12 +66,9 @@ func (b *Bot) categorizeTransaction(ctx context.Context, tx *storage.Transaction
 }
 
 // categorizable reports whether the Categorizer should be asked about tx:
-// its amount and Direction must be settled.
+// a Flagged transaction is still missing its amount or Direction.
 func categorizable(tx storage.Transaction) bool {
-	if !tx.Flagged {
-		return true
-	}
-	return tx.FlagReason != storage.FlagAmountMissing && tx.FlagReason != storage.FlagDirectionAmbiguous
+	return !tx.Flagged
 }
 
 // categorizerText is what the Categorizer reads: the bank message plus the

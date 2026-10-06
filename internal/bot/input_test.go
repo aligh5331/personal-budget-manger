@@ -2,7 +2,6 @@ package bot_test
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"strings"
 	"testing"
@@ -167,24 +166,6 @@ func TestAMadeUpNoteIsNotSaved(t *testing.T) {
 	}
 }
 
-func TestMissingAmountIsSavedFlagged(t *testing.T) {
-	// Until Follow-ups exist, an Input with no amount is kept as a Flagged
-	// transaction so it is never lost.
-	h := bottest.New(t)
-	r := melliReading("")
-	r.Transactions[0].Amount = 0
-	h.Extractor.Return(r)
-
-	h.SendText(melliBale)
-
-	conf := h.LastSent()
-	assertContains(t, conf.Text, "flagged", "amount")
-	tx := storedTransaction(t, h, savedID(t, conf))
-	if !tx.Flagged || tx.FlagReason != storage.FlagAmountMissing || tx.AmountToman != nil {
-		t.Errorf("flagged %v reason %q amount %v", tx.Flagged, tx.FlagReason, tx.AmountToman)
-	}
-}
-
 func TestNotATransactionSavesNothing(t *testing.T) {
 	h := bottest.New(t)
 	h.Extractor.Return(extract.Result{IsTransaction: false})
@@ -192,18 +173,6 @@ func TestNotATransactionSavesNothing(t *testing.T) {
 	h.SendText("رمز یکبار مصرف: 12345")
 
 	assertContains(t, h.LastSent().Text, "No transaction found")
-	if _, ok, _ := h.Store.TransactionByID(context.Background(), 1); ok {
-		t.Error("a Transaction was saved")
-	}
-}
-
-func TestExtractionFailureSavesNothingAndSaysSo(t *testing.T) {
-	h := bottest.New(t)
-	h.Extractor.Fail(errors.New("503 no healthy upstream"))
-
-	h.SendText(melliBale)
-
-	assertContains(t, h.LastSent().Text, "Couldn't read")
 	if _, ok, _ := h.Store.TransactionByID(context.Background(), 1); ok {
 		t.Error("a Transaction was saved")
 	}

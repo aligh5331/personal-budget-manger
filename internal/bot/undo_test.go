@@ -3,7 +3,6 @@ package bot_test
 import (
 	"context"
 	"fmt"
-	"strings"
 	"testing"
 	"time"
 
@@ -62,8 +61,9 @@ func TestUndoTwiceSaysAlreadyRemoved(t *testing.T) {
 	// A different payment, so it is not held back as a duplicate.
 	r := melliReading("")
 	r.Transactions[0].Amount = 1250000
+	h.Extractor.Reset()
 	h.Extractor.Return(r)
-	h.SendText(strings.Replace(melliBale, "۱,۲۴۰,۰۰۰", "۱,۲۵۰,۰۰۰", 1))
+	h.SendText(otherPayment())
 	conf := h.LastSent()
 	otherID := savedID(t, conf)
 	other := bale.Message{MessageID: 5000 + otherID, Chat: bale.Chat{ID: conf.ChatID, Type: bale.ChatPrivate}, Text: conf.Text}

@@ -119,6 +119,7 @@ func (h *Harness) Deps() bot.Deps {
 		EditPrompts:  h.Store,
 		Categorizer:  h.Categorizer,
 		Categories:   h.Store,
+		FollowUps:    h.Store,
 	}
 }
 
@@ -190,8 +191,19 @@ func (h *Harness) Restart() {
 	_ = h.Store.Close()
 	h.Store = openStore(h.t, h.dbPath)
 	h.Bot = h.newBot()
+	// The app expires Follow-ups left over from downtime at startup.
+	h.ExpireFollowUps()
 	if started {
 		h.StartUpdates()
+	}
+}
+
+// ExpireFollowUps runs the Follow-up expiry sweep, as the app's timer does
+// (move h.Clock first).
+func (h *Harness) ExpireFollowUps() {
+	h.t.Helper()
+	if err := h.Bot.ExpireFollowUps(context.Background()); err != nil {
+		h.t.Fatalf("ExpireFollowUps: %v", err)
 	}
 }
 

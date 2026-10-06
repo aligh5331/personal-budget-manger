@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
@@ -41,6 +42,9 @@ type Deps struct {
 	Categorizer categorize.Categorizer
 	// Categories stores the Owner's Categories (#35).
 	Categories storage.Categories
+
+	// FollowUps stores pending Follow-ups (#37).
+	FollowUps storage.FollowUps
 }
 
 // UpdateSource is the switchable update source (internal/updates.Manager).
@@ -59,6 +63,8 @@ type Bot struct {
 	Deps
 
 	dropLogged map[int64]time.Time // sender -> last "dropped" log line
+	// followMu serializes Follow-up work between the worker and the expiry timer.
+	followMu sync.Mutex
 }
 
 // New validates deps and returns a Bot.
@@ -71,6 +77,9 @@ func New(d Deps) (*Bot, error) {
 	}
 	if d.Categorizer == nil || d.Categories == nil {
 		return nil, errors.New("bot: Categorizer and Categories are required")
+	}
+	if d.FollowUps == nil {
+		return nil, errors.New("bot: FollowUps is required")
 	}
 	if d.OwnerID == 0 {
 		return nil, errors.New("bot: OwnerID is required")

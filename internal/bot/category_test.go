@@ -180,6 +180,7 @@ func TestATransactionWithNoAmountIsNotCategorized(t *testing.T) {
 	h.Extractor.Return(r)
 
 	h.SendText("اطلاع\u200cرسانی بانک ملّی ایران\n*#برداشت_با_POS*\nمانده: *۱۱,۱۱۱,۱۱۱* ریال")
+	expireFollowUps(h) // nobody answers the question: it is saved Flagged
 
 	if n := len(h.Categorizer.Calls()); n != 0 {
 		t.Errorf("categorizer called %d times for a Transaction with no amount", n)

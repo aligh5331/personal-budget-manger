@@ -257,10 +257,11 @@ func (b *Bot) applyTypedValue(tx *storage.Transaction, field, text string) bool 
 		if !ok {
 			return false
 		}
-		tx.AmountToman = &amount
-		if tx.Flagged && tx.FlagReason == storage.FlagAmountMissing {
+		// Flagged for a missing amount (or a Follow-up that ended without it).
+		if tx.Flagged && tx.AmountToman == nil {
 			tx.Flagged, tx.FlagReason = false, ""
 		}
+		tx.AmountToman = &amount
 	case storage.EditFieldDate:
 		d, ok := inputrules.TypedDate(text, b.Clock.Now())
 		if !ok {
@@ -292,7 +293,7 @@ func withDate(t time.Time, d jalali.Date) time.Time {
 // to Uncategorized; internal clears it. Either way a pending background
 // re-categorize is dropped. Picking a Direction settles an ambiguous one.
 func (b *Bot) applyDirection(ctx context.Context, tx *storage.Transaction, dir string) error {
-	if tx.Flagged && tx.FlagReason == storage.FlagDirectionAmbiguous {
+	if tx.Flagged && tx.AmountToman != nil {
 		tx.Flagged, tx.FlagReason = false, ""
 	}
 	if dir == tx.Direction {

@@ -42,6 +42,14 @@ func (f *Fake) Fail(err error) {
 	f.script = append(f.script, step{err: err})
 }
 
+// Reset drops every scripted entry (the last one is otherwise kept for
+// good), so a test can script a new reading after sending an Input.
+func (f *Fake) Reset() {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.script = nil
+}
+
 // Inputs returns every Input text Extract was called with.
 func (f *Fake) Inputs() []string {
 	f.mu.Lock()

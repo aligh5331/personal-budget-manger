@@ -160,6 +160,7 @@ func TestEditAmountClearsTheMissingAmountFlag(t *testing.T) {
 	r.Transactions[0].Amount = 0
 	h.Extractor.Return(r)
 	h.SendText(melliBale)
+	expireFollowUps(h) // nobody answers the question: it is saved Flagged
 	conf := h.LastSent()
 	id := savedID(t, conf)
 	msg := confirmationOf(conf, id)
@@ -221,9 +222,10 @@ func TestEditDirectionSettlesAnAmbiguousOne(t *testing.T) {
 	h.Extractor.Return(r)
 	// A bare «انتقال» with no sign leaves the Direction ambiguous.
 	h.SendText("بانک ملی\nانتقال\nمبلغ: ۱,۲۴۰,۰۰۰ ریال\n۱۲:۰۵ ۱۴۰۵/۰۷/۰۴")
+	expireFollowUps(h) // nobody answers the question: it is saved Flagged
 	conf := h.LastSent()
 	id := savedID(t, conf)
-	if tx := storedTransaction(t, h, id); !tx.Flagged || tx.FlagReason != storage.FlagDirectionAmbiguous {
+	if tx := storedTransaction(t, h, id); !tx.Flagged {
 		t.Fatalf("fixture is not ambiguous: %+v", tx)
 	}
 	msg := confirmationOf(conf, id)
