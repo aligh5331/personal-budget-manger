@@ -73,4 +73,8 @@ type Transactions interface {
 	SetOwnerCategory(ctx context.Context, id, categoryID int64) (updated bool, err error)
 	// AllTransactions returns every Transaction, oldest id first (/export).
 	AllTransactions(ctx context.Context) ([]Transaction, error)
+	// ReportSummary totals the Transactions occurring in r by Category and
+	// Direction, counts internal transfers and Flagged transactions (see
+	// ReportSummary). Archived Categories keep their lines.
+	ReportSummary(ctx context.Context, r ReportRange) (ReportSummary, error)
 }
