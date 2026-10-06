@@ -1,6 +1,7 @@
 package bot_test
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -125,8 +126,8 @@ func TestEditAmount(t *testing.T) {
 	}
 	e := lastEdit(t, h)
 	assertContains(t, e.Text, "450,000 toman")
-	if got := labels(e.ReplyMarkup); len(got) != 2 || got[0] != "Undo" || got[1] != "Edit" {
-		t.Errorf("buttons after edit = %v, want the confirmation's Undo and Edit", got)
+	if got := labels(e.ReplyMarkup); len(got) != 3 || got[0] != "Undo" || got[1] != "Category" || got[2] != "Edit" {
+		t.Errorf("buttons after edit = %v, want the confirmation's Undo, Category and Edit", got)
 	}
 	if e.MessageID != msg.MessageID {
 		t.Errorf("edited message %d, want the confirmation %d", e.MessageID, msg.MessageID)
@@ -190,7 +191,11 @@ func TestEditDirection(t *testing.T) {
 	msg.ReplyMarkup = e.ReplyMarkup
 	tapEdit(t, h, msg, "Income")
 
-	if tx := storedTransaction(t, h, id); tx.Direction != storage.DirectionIn || tx.CategoryID != nil {
+	unc, err := h.Store.Uncategorized(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tx := storedTransaction(t, h, id); tx.Direction != storage.DirectionIn || tx.CategoryID == nil || *tx.CategoryID != unc.ID {
 		t.Errorf("direction %q category %v, want in with Uncategorized", tx.Direction, tx.CategoryID)
 	}
 	assertContains(t, lastEdit(t, h).Text, "Income", "Uncategorized")
@@ -303,7 +308,7 @@ func TestEditBackRestoresTheConfirmationButtons(t *testing.T) {
 
 	tapEdit(t, h, msg, "Back")
 
-	if got := labels(lastEdit(t, h).ReplyMarkup); len(got) != 2 || got[0] != "Undo" || got[1] != "Edit" {
+	if got := labels(lastEdit(t, h).ReplyMarkup); len(got) != 3 || got[0] != "Undo" || got[1] != "Category" || got[2] != "Edit" {
 		t.Errorf("buttons = %v", got)
 	}
 }

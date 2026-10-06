@@ -30,7 +30,7 @@ type Transaction struct {
 	AmountToman *int64
 	// Direction is DirectionOut, DirectionIn or DirectionInternal.
 	Direction string
-	// CategoryID is nil for internal transfers (and until Categories exist).
+	// CategoryID is nil only for internal transfers.
 	CategoryID *int64
 	// Description is the Owner's own words only.
 	Description string
@@ -66,6 +66,11 @@ type Transactions interface {
 	// Description, Flagged, FlagReason and CategorizePending. updated is
 	// false when it was already gone.
 	UpdateTransaction(ctx context.Context, t Transaction) (updated bool, err error)
+	// SetOwnerCategory records the Category the Owner picked by hand. It
+	// also clears categorize_pending, so a background re-categorize never
+	// overwrites the Owner's choice. updated is false when the Transaction
+	// is gone.
+	SetOwnerCategory(ctx context.Context, id, categoryID int64) (updated bool, err error)
 	// AllTransactions returns every Transaction, oldest id first (/export).
 	AllTransactions(ctx context.Context) ([]Transaction, error)
 }

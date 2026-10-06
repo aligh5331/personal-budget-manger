@@ -16,6 +16,7 @@ Where things go, for agents implementing tickets of spec #30. Domain words come 
 | `internal/storage` | One small interface per aggregate, one file each (`settings.go`, later `transactions.go`, `categories.go`, ...). Methods named by intent. |
 | `internal/storage/sqlite` | The implementation, one file per aggregate, plus `migrations/`. |
 | `internal/extract` | `Extractor` interface, the `Result`/`Item` the model returns, and `Metis` (OpenAI-compatible chat, strict json_schema, one retry on `gpt-5-mini`). `extractfake` is the scripted fake (`h.Extractor` in `bottest`). |
+| `internal/categorize` | `Categorizer` interface (`Categorize(ctx, text, []Option) (Pick, error)`) and `Jev` (Metis TypeSafe Choice question, one retry on 5xx, timeout or unreadable reply). Option keys are slugs of the name (`c<id>` fallback). `categorizefake` is the scripted fake (`h.Categorizer.Choose(name, conf)`, `.Fail(err)`, `.Calls()`; unscripted it picks Uncategorized). |
 | `internal/inputrules` | The Input rules, pure: `Apply(Input{Text, Extraction, Now}) Outcome` turns the model's reading into `Draft`s, each carrying the one `FollowUp` field it still needs. One file per rule family (`normalize.go`, `direction.go`, `date.go`, `reldate.go`, `note.go`, `noteamount.go`); add rules there, behind `Apply`. |
 | `internal/jalali` | Jalali/Gregorian conversion (`FromTime`, `Date.At`), `Format` ("14 Mehr 1405"), `MonthName`, `DaysInMonth`. |
 | `internal/backup` | Daily and startup `VACUUM INTO` snapshots in `DATA_DIR/backups`, retention, upload to the Owner. Restore: `docs/runbooks/restore-backup.md`. |
@@ -33,8 +34,16 @@ Register handlers from an `init` in a new file instead of editing a shared switc
 - Buttons: `cb_<name>.go` calls `RegisterCallback(Callback{Prefix, Run})`. `callback_data` is `<prefix>:<id>:<action>`, at most 64 bytes (`t:<id>:undo` for Transactions). The core always calls `answerCallbackQuery` with the toast `Run` returns.
 - Text notes: `input.go` is the Input pipeline (extract, `inputrules.Apply`, save, confirm), one function per step. Extend a step there; don't add a second text handler.
 - Transaction buttons all share prefix `t`. Add an action with `RegisterTransactionAction("edit", fn)` in `cb_<name>.go`, and a button on every confirmation with `RegisterConfirmationButton(ConfirmationButton{Order, Label, Action})` (Undo is 10). `TransactionData(id, action)` builds the data.
-- `confirmation.go` renders the confirmation. Its `categoryText` is a stub that #35 replaces. `FormatToman` and `FormatDate` are the shared display helpers.
-- `cmd_export.go` is `/export` (UTF-8 CSV with BOM, one row per Transaction). Its `exportCategoryName` is a stub returning "" that #35 replaces; a new stored column goes into `exportHeader` and the row.
+- `confirmation.go` renders the confirmation. `FormatToman` and `FormatDate` are the shared display helpers. A `ConfirmationButton` may set `Shown(tx)` to hide itself for some Transactions (the [Category] button is hidden on internal transfers).
+- `cmd_export.go` is `/export` (UTF-8 CSV with BOM, one row per Transaction). Its `exportCategoryName` reads the Category name (archived ones too); a new stored column goes into `exportHeader` and the row.
+- Transaction action arguments: `t:<id>:<action>:<arg>`; the handler reads `<arg>` with `TransactionArg(q)`. `TransactionData(id, "cat:7")` builds one.
+
+### Categories (#35)
+
+- Storage: `storage.Categories` (`Uncategorized`, `ActiveCategories(kind)`, `CategoryByID`), `storage.Category{ID, Name, Hint, Kind, Archived, BuiltIn}`, `storage.CategoryKindFor(direction)`. Kinds: `KindExpense`, `KindIncome`, `KindAny` (Uncategorized only). Table and seed: `0035_categories.sql`. #42 adds the write side (add, rename, archive, unarchive) to this interface. Reports (#41) can join `transactions.category_id` to `categories` and must keep archived ones.
+- `storage.Transactions.SetOwnerCategory(id, categoryID)` is the Owner's hand pick and clears `categorize_pending`. #36 should add a conditional update that applies a background result only while the row is still Uncategorized and pending.
+- Category step: `category.go`, `(*Bot).categorizeTransaction(ctx, &tx)` runs before save in the Input pipeline. It sets `CategoryID` and `CategorizePending` (Categorizer failed after its retry). `MinCategoryConfidence` is 0.7. #37 should call it again once a Follow-up settles amount or Direction (`categorizable` skips Transactions still waiting). `categoryOptions` builds the option list; `categoryText` names a Category.
+- Picker: `cb_category.go`, actions `cat`, `cat:<catID>`, `cat:back`. Reuse `editConfirmation` / `editMessage` to redraw a confirmation in place (#36).
 
 A new collaborator (Extractor, Categorizer, another storage interface) is one field in `bot.Deps`, wired in `internal/app/app.go` and in `bottest.Harness.Deps`.
 
