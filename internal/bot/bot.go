@@ -59,6 +59,7 @@ type Bot struct {
 	Deps
 
 	dropLogged map[int64]time.Time // sender -> last "dropped" log line
+	lists      *listStore          // /transactions list state, by message (#40)
 }
 
 // New validates deps and returns a Bot.

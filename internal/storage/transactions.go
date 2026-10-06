@@ -73,4 +73,18 @@ type Transactions interface {
 	SetOwnerCategory(ctx context.Context, id, categoryID int64) (updated bool, err error)
 	// AllTransactions returns every Transaction, oldest id first (/export).
 	AllTransactions(ctx context.Context) ([]Transaction, error)
+	// ListTransactions returns one page of the Transactions matching f,
+	// newest first by OccurredAt (then id), and how many match in all.
+	ListTransactions(ctx context.Context, f TransactionFilter, limit, offset int) (page []Transaction, total int, err error)
+}
+
+// TransactionFilter narrows ListTransactions. The zero value matches every
+// Transaction.
+type TransactionFilter struct {
+	// From and To bound OccurredAt as [From, To); a zero time is no bound.
+	From, To time.Time
+	// FlaggedOnly keeps only Flagged transactions.
+	FlaggedOnly bool
+	// CategoryID, when set, keeps only that Category (archived or not).
+	CategoryID *int64
 }
