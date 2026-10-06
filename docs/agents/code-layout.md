@@ -15,6 +15,7 @@ Where things go, for agents implementing tickets of spec #30. Domain words come 
 | `internal/bot/bottest` | The test seam: `bottest.New(t)` gives a bot wired to the fake Bale client, a fixed Asia/Tehran clock (`bottest.Start`, 14 Mehr 1405 12:00) and a real temp SQLite DB. |
 | `internal/storage` | One small interface per aggregate, one file each (`settings.go`, later `transactions.go`, `categories.go`, ...). Methods named by intent. |
 | `internal/storage/sqlite` | The implementation, one file per aggregate, plus `migrations/`. |
+| `internal/backup` | Daily and startup `VACUUM INTO` snapshots in `DATA_DIR/backups`, retention, upload to the Owner. Restore: `docs/runbooks/restore-backup.md`. |
 | `internal/health` | `/healthz` from a list of named checks. |
 | `internal/clock` | `Clock` interface, `System`, `Fake`, `Tehran()`. Never call `time.Now()` in the core; use `b.Clock.Now()`. |
 | `internal/version` | `Version`, set by `-ldflags` at build time. |
