@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 	"github.com/aligh5331/personal-budget-manger/internal/inputrules"
@@ -20,6 +21,9 @@ const (
 	extractionFailedReply = "Couldn't read that right now. Please send it again in a minute."
 )
 
+var tooManyReply = fmt.Sprintf("That's more than %d bank messages in one go, so nothing was saved. "+
+	"Please resend them in smaller batches of up to %d.", inputrules.MaxBankMessages, inputrules.MaxBankMessages)
+
 func init() { SetTextHandler(handleInput) }
 
 func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
@@ -30,12 +34,24 @@ func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
 		return b.Reply(ctx, m, extractionFailedReply, nil)
 	}
 	out := inputrules.Apply(inputrules.Input{Text: m.Text, Extraction: reading, Now: now})
-	if !out.IsTransaction {
+	switch {
+	case !out.IsTransaction:
 		return b.Reply(ctx, m, noTransactionReply, nil)
+	case out.TooMany:
+		return b.Reply(ctx, m, tooManyReply, nil)
 	}
+	var saved, held []storage.Transaction
 	for i, d := range out.Drafts {
 		tx := transactionFromDraft(d, m, i)
 		tx.CreatedAt = now
+		dup, err := b.isDuplicate(ctx, tx, d.HasTime)
+		if err != nil {
+			return err
+		}
+		if dup {
+			held = append(held, tx)
+			continue
+		}
 		if err := b.categorizeTransaction(ctx, &tx); err != nil {
 			return err
 		}
@@ -44,7 +60,15 @@ func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
 			return err
 		}
 		tx.ID = id
-		if err := b.sendConfirmation(ctx, m.Chat.ID, tx); err != nil {
+		saved = append(saved, tx)
+	}
+	if len(saved) > 0 {
+		if err := b.sendConfirmations(ctx, m.Chat.ID, saved); err != nil {
+			return err
+		}
+	}
+	for _, tx := range held {
+		if err := b.replyDuplicate(ctx, m.Chat.ID, tx); err != nil {
 			return err
 		}
 	}
@@ -67,8 +91,11 @@ func transactionFromDraft(d inputrules.Draft, m *bale.Message, index int) storag
 		amount := d.AmountToman
 		tx.AmountToman = &amount
 	}
-	if d.Direction == inputrules.In {
+	switch d.Direction {
+	case inputrules.In:
 		tx.Direction = storage.DirectionIn
+	case inputrules.Internal:
+		tx.Direction = storage.DirectionInternal
 	}
 	switch d.FollowUp {
 	case inputrules.FieldAmount:
