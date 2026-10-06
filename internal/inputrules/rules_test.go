@@ -1,6 +1,7 @@
 package inputrules_test
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -180,12 +181,13 @@ func TestNotATransaction(t *testing.T) {
 }
 
 func TestRepeatedAmountsPairWithTheirOwnMessages(t *testing.T) {
+	// A minute apart, so the pair is not merged into an internal transfer.
 	out := inputrules.Apply(inputrules.Input{
-		Text: smsCase8,
+		Text: strings.Replace(smsCase8, "0705-13:23\nجابجایی", "0705-13:24\nجابجایی", 1),
 		Now:  now,
 		Extraction: extract.Result{IsTransaction: true, Transactions: []extract.Item{
 			{Amount: 63000000, AmountUnit: extract.UnitRial, Direction: extract.DirOut, Date: "1405/07/05", Time: "13:23", Confidence: 0.9},
-			{Amount: 63000000, AmountUnit: extract.UnitRial, Direction: extract.DirIn, Date: "1405/07/05", Time: "13:23", Confidence: 0.9},
+			{Amount: 63000000, AmountUnit: extract.UnitRial, Direction: extract.DirIn, Date: "1405/07/05", Time: "13:24", Confidence: 0.9},
 		}},
 	})
 	if len(out.Drafts) != 2 || out.Drafts[0].Direction != inputrules.Out || out.Drafts[1].Direction != inputrules.In {

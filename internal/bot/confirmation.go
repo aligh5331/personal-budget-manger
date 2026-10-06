@@ -38,12 +38,6 @@ func RegisterConfirmationButton(c ConfirmationButton) {
 	})
 }
 
-// sendConfirmation tells the Owner what was saved.
-func (b *Bot) sendConfirmation(ctx context.Context, chatID int64, tx storage.Transaction) error {
-	_, err := b.Send(ctx, chatID, b.confirmationText(ctx, tx), confirmationMarkupFor(tx))
-	return err
-}
-
 // confirmationText shows amount, Direction, Category, description (or the
 // bank's label, marked as bank text, when the Owner wrote nothing) and the
 // Jalali date.
