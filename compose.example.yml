@@ -1,0 +1,37 @@
+# Example Compose file for the lab. Copy it next to deploy.sh as compose.yml,
+# and .env.example as .env (fill it in), then run ./deploy.sh.
+#
+# The bot publishes no host port: the reverse proxy reaches it as bot:8080 on
+# the external `reverse-proxy` network (create it once with
+# `docker network create reverse-proxy` if the proxy has not).
+# The container runs as uid 10001, so the data directory must be writable by
+# it: `mkdir -p data && sudo chown 10001:10001 data`.
+services:
+  bot:
+    # deploy.sh sets BOT_IMAGE and BOT_VERSION to the pulled or loaded image.
+    image: ${BOT_IMAGE:-ghcr.io/aligh5331/personal-budget-manger}:${BOT_VERSION:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Fixed inside the container, whatever .env says.
+      DATA_DIR: /data
+      LISTEN_ADDR: ":8080"
+    volumes:
+      - ./data:/data
+    networks:
+      - reverse-proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  reverse-proxy:
+    external: true

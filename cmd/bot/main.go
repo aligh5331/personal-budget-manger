@@ -1,9 +1,12 @@
 // Command bot runs the personal budget Bale bot. All configuration comes from
-// environment variables (see .env.example).
+// environment variables (see .env.example). `bot -version` prints the version
+// baked in at build time and exits.
 package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -11,9 +14,17 @@ import (
 
 	"github.com/aligh5331/personal-budget-manger/internal/app"
 	"github.com/aligh5331/personal-budget-manger/internal/config"
+	"github.com/aligh5331/personal-budget-manger/internal/version"
 )
 
 func main() {
+	showVersion := flag.Bool("version", false, "print the version and exit")
+	flag.Parse()
+	if *showVersion {
+		fmt.Println(version.Version)
+		return
+	}
+
 	log := slog.New(slog.NewTextHandler(os.Stderr, nil))
 	cfg, err := config.Load(os.Getenv)
 	if err != nil {
