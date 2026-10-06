@@ -176,7 +176,10 @@ func TestRenameKeepsADefaultedHintInStepWithTheName(t *testing.T) {
 
 func TestArchiveHidesFromPickersAndJevButKeepsOldTransactions(t *testing.T) {
 	h := bottest.New(t)
+	lunch := melliReading("ناهار")
+	lunch.Transactions[0].Amount = 990000
 	h.Extractor.Return(melliReading("تنقلات"))
+	h.Extractor.Return(lunch)
 	h.Categorizer.Choose("Snacks", 0.92)
 	h.SendText(melliBale + "\nتنقلات")
 	conf := h.LastSent()
@@ -194,8 +197,7 @@ func TestArchiveHidesFromPickersAndJevButKeepsOldTransactions(t *testing.T) {
 	}
 
 	// Jev is not offered it.
-	h.Extractor.Return(melliReading("ناهار"))
-	h.SendText(melliBale + "\nناهار")
+	h.SendText(strings.Replace(melliBale, "۱,۲۴۰,۰۰۰", "۹۹۰,۰۰۰", 1) + "\nناهار")
 	calls := h.Categorizer.Calls()
 	if opts := calls[len(calls)-1].OptionNames(); slices.Contains(opts, "Snacks") {
 		t.Errorf("Jev options %v include archived Snacks", opts)
@@ -210,7 +212,7 @@ func TestArchiveHidesFromPickersAndJevButKeepsOldTransactions(t *testing.T) {
 	if tx.CategoryID == nil || *tx.CategoryID != snacks.ID {
 		t.Errorf("old Transaction category = %v, want Snacks kept", tx.CategoryID)
 	}
-	assertContains(t, h.LastSent().Text, "ناهار")
+	assertContains(t, h.LastSent().Text, "Category: Uncategorized")
 }
 
 func TestShowArchivedAndUnarchive(t *testing.T) {
