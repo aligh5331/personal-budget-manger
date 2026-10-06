@@ -22,7 +22,7 @@ The bot must not be running while you swap the file.
 
 ## 3. Replace the database file
 
-In the host folder mounted at `/data` (called `DATA_DIR` below):
+In the host folder mounted at `/data` (called `DATA_DIR` below; `./data` next to `compose.yml` with `compose.example.yml`):
 
 ```sh
 cd DATA_DIR
@@ -45,7 +45,7 @@ On startup the bot applies any migrations the snapshot is missing, so a snapshot
 
 ## 5. Check
 
-- `curl http://<host>:8080/healthz` returns 200.
+- `docker compose ps` shows the bot as `healthy` after about 30 seconds (the healthcheck calls `/healthz`).
 - `/help` answers in Bale.
 - `/transactions` shows the Transactions you expect up to the snapshot's time.
 
