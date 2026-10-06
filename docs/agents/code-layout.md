@@ -39,7 +39,7 @@ Portable SQL only: `INTEGER` ids, `TEXT`, `BIGINT` amounts and UTC unix seconds,
 
 ## Tests
 
-- Behaviour goes through `bottest`: feed updates (`h.SendText`, `h.SendMessage`, `h.Tap`, `h.Feed`), then assert on `h.Sent()`, `h.Bale.Edits()`, `h.Bale.Answers()`, and rows read back through the storage interfaces. Move time with `h.Clock.Advance`. `h.Restart()` reopens the DB and rebuilds the bot. `h.Bale.Fail(method, err)` makes a Bale call fail.
+- Behaviour goes through `bottest`: feed updates (`h.SendText`, `h.SendMessage`, `h.Tap`, `h.Feed`), then assert on `h.Sent()`, `h.Bale.Edits()`, `h.Bale.Answers()`, and rows read back through the storage interfaces. Move time with `h.Clock.Advance`. `h.Restart()` reopens the DB and rebuilds the bot. `h.Bale.Fail(method, err)` makes a Bale call fail. `h.StartUpdates()` boots the real update source (`updates.Manager`: polling or webhook, `/mode`) against the fake Bale client and routes `Feed` through the in-order worker; tests that don't call it never poll.
 - One test file per feature (`report_test.go`), package `bot_test`.
 - HTTP edges (Bale polling, webhook, Metis, Jev, `/healthz`) use `httptest`.
 

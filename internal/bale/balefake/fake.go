@@ -7,6 +7,7 @@ package balefake
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 )
@@ -40,14 +41,19 @@ type Fake struct {
 	nextMsgID   int64
 	webhookInfo bale.WebhookInfo
 	updates     [][]bale.Update
+	queued      chan struct{} // signalled by QueueUpdates, wakes a long poll
 }
+
+// LongPoll is how long a GetUpdates with a timeout waits for queued updates
+// before returning none (a scaled-down stand-in for Bale's long poll).
+const LongPoll = 20 * time.Millisecond
 
 var _ bale.Client = (*Fake)(nil)
 
 // New returns an empty fake. Sent messages get ids from 1000 upwards so they
 // never collide with the small ids tests use for incoming messages.
 func New() *Fake {
-	return &Fake{fail: map[string]error{}, nextMsgID: 1000}
+	return &Fake{fail: map[string]error{}, nextMsgID: 1000, queued: make(chan struct{}, 1)}
 }
 
 // Fail makes every later call of method return err. Pass nil to stop failing.
@@ -66,6 +72,10 @@ func (f *Fake) QueueUpdates(us ...bale.Update) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.updates = append(f.updates, us)
+	select {
+	case f.queued <- struct{}{}:
+	default:
+	}
 }
 
 // SetWebhookInfo sets what GetWebhookInfo returns (SetWebhook also updates the URL).
@@ -140,19 +150,37 @@ func (f *Fake) newMessageID() int64 {
 	return f.nextMsgID
 }
 
-// GetUpdates returns the next queued batch, or nothing.
-func (f *Fake) GetUpdates(_ context.Context, p bale.GetUpdatesParams) ([]bale.Update, error) {
+// GetUpdates returns the next queued batch. With p.Timeout > 0 and nothing
+// queued it waits up to LongPoll (or until ctx ends) for a batch, like a long
+// poll; with no timeout it returns at once.
+func (f *Fake) GetUpdates(ctx context.Context, p bale.GetUpdatesParams) ([]bale.Update, error) {
 	if err := f.record(MethodGetUpdates, p); err != nil {
 		return nil, err
 	}
+	if us, ok := f.nextBatch(); ok || p.Timeout == 0 {
+		return us, nil
+	}
+	t := time.NewTimer(LongPoll)
+	defer t.Stop()
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-t.C:
+	case <-f.queued:
+	}
+	us, _ := f.nextBatch()
+	return us, nil
+}
+
+func (f *Fake) nextBatch() ([]bale.Update, bool) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if len(f.updates) == 0 {
-		return nil, nil
+		return nil, false
 	}
 	us := f.updates[0]
 	f.updates = f.updates[1:]
-	return us, nil
+	return us, true
 }
 
 // SetWebhook records the URL and makes GetWebhookInfo report it.
