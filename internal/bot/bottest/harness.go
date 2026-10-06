@@ -20,6 +20,7 @@ import (
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 	"github.com/aligh5331/personal-budget-manger/internal/bale/balefake"
 	"github.com/aligh5331/personal-budget-manger/internal/bot"
+	"github.com/aligh5331/personal-budget-manger/internal/categorize/categorizefake"
 	"github.com/aligh5331/personal-budget-manger/internal/clock"
 	"github.com/aligh5331/personal-budget-manger/internal/extract/extractfake"
 	"github.com/aligh5331/personal-budget-manger/internal/storage/sqlite"
@@ -55,6 +56,9 @@ type Harness struct {
 	// Extractor is the scripted extraction LLM. Script it with
 	// h.Extractor.Return(...) before sending an Input.
 	Extractor *extractfake.Fake
+	// Categorizer is the scripted Category picker (Jev). Unscripted, it
+	// picks Uncategorized; script it with h.Categorizer.Choose(name, conf).
+	Categorizer *categorizefake.Fake
 
 	// Updates is the webhook/polling switch, wired to the fake Bale client.
 	// It is idle until StartUpdates; Restart rebuilds it from UpdatesConfig.
@@ -78,6 +82,7 @@ func New(t testing.TB) *Harness {
 		Logs:          &LogRecorder{},
 		UpdatesConfig: updates.ModeConfig{WebhookURL: WebhookURL, SecretPath: WebhookSecret},
 		Extractor:     extractfake.New(),
+		Categorizer:   categorizefake.New(),
 		dbPath:        filepath.Join(t.TempDir(), "bot.db"),
 		nextUpdateID:  1,
 		nextMessageID: 1,
@@ -111,6 +116,8 @@ func (h *Harness) Deps() bot.Deps {
 
 		Extractor:    h.Extractor,
 		Transactions: h.Store,
+		Categorizer:  h.Categorizer,
+		Categories:   h.Store,
 	}
 }
 

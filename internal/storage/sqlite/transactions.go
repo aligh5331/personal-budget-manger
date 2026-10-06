@@ -61,6 +61,19 @@ func (s *Store) DeleteTransaction(ctx context.Context, id int64) (bool, error) {
 	return n > 0, nil
 }
 
+// SetOwnerCategory implements storage.Transactions.
+func (s *Store) SetOwnerCategory(ctx context.Context, id, categoryID int64) (bool, error) {
+	res, err := s.db.ExecContext(ctx, `UPDATE transactions SET category_id = ?, categorize_pending = 0 WHERE id = ?`, categoryID, id)
+	if err != nil {
+		return false, fmt.Errorf("set category of transaction %d: %w", id, err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
 // scanTransaction reads one row selected with transactionColumns.
 func scanTransaction(row interface{ Scan(...any) error }) (storage.Transaction, error) {
 	var (

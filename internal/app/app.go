@@ -15,6 +15,7 @@ import (
 	"github.com/aligh5331/personal-budget-manger/internal/backup"
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 	"github.com/aligh5331/personal-budget-manger/internal/bot"
+	"github.com/aligh5331/personal-budget-manger/internal/categorize"
 	"github.com/aligh5331/personal-budget-manger/internal/clock"
 	"github.com/aligh5331/personal-budget-manger/internal/config"
 	"github.com/aligh5331/personal-budget-manger/internal/extract"
@@ -77,6 +78,8 @@ func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
 
 		Extractor:    extract.NewMetis(cfg.LLMAPIKey),
 		Transactions: store,
+		Categorizer:  categorize.NewJev(cfg.LLMAPIKey),
+		Categories:   store,
 	})
 	if err != nil {
 		return err

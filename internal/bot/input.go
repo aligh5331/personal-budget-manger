@@ -10,7 +10,7 @@ import (
 
 // The Input pipeline: one Text note from the Owner becomes Transactions.
 //
-//	extract (LLM) -> inputrules.Apply (pure) -> save -> confirmation
+//	extract (LLM) -> inputrules.Apply (pure) -> Category (category.go) -> save -> confirmation
 //
 // Each step is its own function so later tickets can extend one step
 // (Category, duplicates, Follow-ups, batches) without rewriting the others.
@@ -36,6 +36,9 @@ func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
 	for i, d := range out.Drafts {
 		tx := transactionFromDraft(d, m, i)
 		tx.CreatedAt = now
+		if err := b.categorizeTransaction(ctx, &tx); err != nil {
+			return err
+		}
 		id, err := b.Transactions.SaveTransaction(ctx, tx)
 		if err != nil {
 			return err

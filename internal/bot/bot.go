@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
+	"github.com/aligh5331/personal-budget-manger/internal/categorize"
 	"github.com/aligh5331/personal-budget-manger/internal/clock"
 	"github.com/aligh5331/personal-budget-manger/internal/extract"
 	"github.com/aligh5331/personal-budget-manger/internal/storage"
@@ -33,6 +34,11 @@ type Deps struct {
 	Extractor extract.Extractor
 	// Transactions stores Transactions (#32).
 	Transactions storage.Transactions
+
+	// Categorizer picks a Transaction's Category (#35).
+	Categorizer categorize.Categorizer
+	// Categories stores the Owner's Categories (#35).
+	Categories storage.Categories
 }
 
 // UpdateSource is the switchable update source (internal/updates.Manager).
@@ -60,6 +66,9 @@ func New(d Deps) (*Bot, error) {
 	}
 	if d.Extractor == nil || d.Transactions == nil {
 		return nil, errors.New("bot: Extractor and Transactions are required")
+	}
+	if d.Categorizer == nil || d.Categories == nil {
+		return nil, errors.New("bot: Categorizer and Categories are required")
 	}
 	if d.OwnerID == 0 {
 		return nil, errors.New("bot: OwnerID is required")
