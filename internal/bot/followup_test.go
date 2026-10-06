@@ -271,7 +271,7 @@ func TestANewInputClosesTheOpenFollowUpAsFlagged(t *testing.T) {
 		name   string
 		first  extract.Result
 		text   string
-		reason string
+		reason storage.FlagReason
 	}{
 		{"amount", noAmountReading(), melliBale, storage.FlagAmountMissing},
 		{"direction", ambiguousReading(), ambiguousTransfer, storage.FlagDirectionAmbiguous},

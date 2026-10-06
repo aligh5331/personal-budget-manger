@@ -69,10 +69,10 @@ func (b *Bot) exportCSV(ctx context.Context, txs []storage.Transaction) ([]byte,
 			strconv.FormatInt(tx.ID, 10),
 			utcTime(tx.CreatedAt), jalaliDate(tx.CreatedAt),
 			utcTime(tx.OccurredAt), jalaliDate(tx.OccurredAt),
-			optionalInt(tx.AmountToman), tx.Direction,
+			optionalInt(tx.AmountToman), string(tx.Direction),
 			optionalInt(tx.CategoryID), category,
 			tx.Description, tx.BankLabel, tx.RawText, tx.InputID,
-			boolCell(tx.Flagged), tx.FlagReason, boolCell(tx.CategorizePending),
+			boolCell(tx.Flagged), string(tx.FlagReason), boolCell(tx.CategorizePending),
 		}); err != nil {
 			return nil, err
 		}

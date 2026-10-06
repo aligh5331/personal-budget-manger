@@ -78,7 +78,7 @@ func directionText(tx storage.Transaction) string {
 	}
 }
 
-func flagReasonText(reason string) string {
+func flagReasonText(reason storage.FlagReason) string {
 	switch reason {
 	case storage.FlagAmountMissing:
 		return "amount missing"
@@ -89,7 +89,7 @@ func flagReasonText(reason string) string {
 	case storage.FlagFollowupUnparsed:
 		return "answer not understood"
 	}
-	return reason
+	return string(reason)
 }
 
 // confirmationMarkupFor is the confirmation buttons that apply to tx.

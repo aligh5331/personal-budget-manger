@@ -9,7 +9,7 @@ type ReportLine struct {
 	// CategoryName is kept even when the Category is archived.
 	CategoryName string
 	// Direction is DirectionOut or DirectionIn.
-	Direction string
+	Direction Direction
 	Total     int64
 }
 

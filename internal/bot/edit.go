@@ -47,7 +47,10 @@ const (
 	actSetDirPrefix = "edit.dir."
 )
 
-var directionChoices = []struct{ label, dir string }{
+var directionChoices = []struct {
+	label string
+	dir   storage.Direction
+}{
 	{"Expense", storage.DirectionOut},
 	{"Income", storage.DirectionIn},
 	{"Internal", storage.DirectionInternal},
@@ -72,7 +75,7 @@ func RegisterTransactionView(v TransactionView) {
 	})
 	for _, c := range directionChoices {
 		dir := c.dir
-		RegisterTransactionAction(editAction(actSetDirPrefix+dir, key), func(ctx context.Context, b *Bot, q *bale.CallbackQuery, id int64) (string, error) {
+		RegisterTransactionAction(editAction(actSetDirPrefix+string(dir), key), func(ctx context.Context, b *Bot, q *bale.CallbackQuery, id int64) (string, error) {
 			return b.setDirection(ctx, q.Message, id, key, dir)
 		})
 	}
@@ -140,7 +143,7 @@ func (b *Bot) editDirectionMenu(ctx context.Context, host *bale.Message, id int6
 	}
 	row := make([]bale.InlineKeyboardButton, 0, len(directionChoices))
 	for _, c := range directionChoices {
-		row = append(row, bale.InlineKeyboardButton{Text: c.label, CallbackData: TransactionData(id, editAction(actSetDirPrefix+c.dir, viewKey))})
+		row = append(row, bale.InlineKeyboardButton{Text: c.label, CallbackData: TransactionData(id, editAction(actSetDirPrefix+string(c.dir), viewKey))})
 	}
 	markup := &bale.InlineKeyboardMarkup{InlineKeyboard: [][]bale.InlineKeyboardButton{
 		row,
@@ -149,7 +152,7 @@ func (b *Bot) editDirectionMenu(ctx context.Context, host *bale.Message, id int6
 	return "", b.redrawWith(ctx, host, tx, viewKey, markup)
 }
 
-func (b *Bot) setDirection(ctx context.Context, host *bale.Message, id int64, viewKey, dir string) (string, error) {
+func (b *Bot) setDirection(ctx context.Context, host *bale.Message, id int64, viewKey string, dir storage.Direction) (string, error) {
 	tx, ok, err := b.Transactions.TransactionByID(ctx, id)
 	if err != nil || !ok {
 		return goneToast, err
@@ -292,7 +295,7 @@ func withDate(t time.Time, d jalali.Date) time.Time {
 // applyDirection sets tx's Direction. A different kind resets the Category
 // to Uncategorized; internal clears it. Either way a pending background
 // re-categorize is dropped. Picking a Direction settles an ambiguous one.
-func (b *Bot) applyDirection(ctx context.Context, tx *storage.Transaction, dir string) error {
+func (b *Bot) applyDirection(ctx context.Context, tx *storage.Transaction, dir storage.Direction) error {
 	if tx.Flagged && tx.AmountToman != nil {
 		tx.Flagged, tx.FlagReason = false, ""
 	}

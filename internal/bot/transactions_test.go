@@ -18,7 +18,7 @@ import (
 type seed struct {
 	year, month, day int // Jalali; the time of day is 10:00
 	amount           int64
-	dir              string
+	dir              storage.Direction
 	category         string // "" = Uncategorized, ignored for internal
 	desc             string
 	flagged          bool

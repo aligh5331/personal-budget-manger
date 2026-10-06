@@ -148,7 +148,7 @@ func (b *Bot) followUpQuestion(_ context.Context, f storage.FollowUp) (string, *
 		summary, FormatDate(tx.OccurredAt), understood)
 	row := make([]bale.InlineKeyboardButton, 0, len(directionChoices))
 	for _, c := range directionChoices {
-		row = append(row, bale.InlineKeyboardButton{Text: c.label, CallbackData: BuildCallbackData(followUpPrefix, f.ID, c.dir)})
+		row = append(row, bale.InlineKeyboardButton{Text: c.label, CallbackData: BuildCallbackData(followUpPrefix, f.ID, string(c.dir))})
 	}
 	return text, &bale.InlineKeyboardMarkup{InlineKeyboard: [][]bale.InlineKeyboardButton{row}}
 }
@@ -202,7 +202,7 @@ func handleFollowUpReply(ctx context.Context, b *Bot, m *bale.Message) (bool, er
 }
 
 // parseDirectionReply reads a typed answer to a Direction question.
-func parseDirectionReply(text string) (string, bool) {
+func parseDirectionReply(text string) (storage.Direction, bool) {
 	switch strings.ToLower(strings.TrimSpace(inputrules.Normalize(text))) {
 	case "expense", "spent", "out", "هزینه", "خرج", "پرداخت":
 		return storage.DirectionOut, true
@@ -221,7 +221,7 @@ func runFollowUpButton(ctx context.Context, b *Bot, q *bale.CallbackQuery) (stri
 	if data.Len() < 3 || !ok || id <= 0 {
 		return staleButtonToast, nil
 	}
-	dir := data.Rest(2)
+	dir := storage.Direction(data.Rest(2))
 	if dir != storage.DirectionOut && dir != storage.DirectionIn && dir != storage.DirectionInternal {
 		return staleButtonToast, nil
 	}
@@ -242,7 +242,7 @@ func runFollowUpButton(ctx context.Context, b *Bot, q *bale.CallbackQuery) (stri
 
 // completeLocked applies the Owner's answer (an amount or a Direction),
 // saves the Transaction, confirms it and asks the next queued question.
-func (b *Bot) completeLocked(ctx context.Context, f storage.FollowUp, amount *int64, direction string) error {
+func (b *Bot) completeLocked(ctx context.Context, f storage.FollowUp, amount *int64, direction storage.Direction) error {
 	tx := f.Draft
 	if f.TransactionID == 0 {
 		tx.CreatedAt = b.Clock.Now()
@@ -298,7 +298,7 @@ func (b *Bot) completeLocked(ctx context.Context, f storage.FollowUp, amount *in
 
 // giveUpLocked ends a Follow-up the Owner did not answer. A draft is saved
 // Flagged with reason; an existing Flagged transaction is left as it is.
-func (b *Bot) giveUpLocked(ctx context.Context, f storage.FollowUp, reason, lead string) error {
+func (b *Bot) giveUpLocked(ctx context.Context, f storage.FollowUp, reason storage.FlagReason, lead string) error {
 	if f.TransactionID != 0 {
 		if err := b.closeLocked(ctx, f); err != nil {
 			return err
@@ -317,7 +317,7 @@ func (b *Bot) giveUpLocked(ctx context.Context, f storage.FollowUp, reason, lead
 }
 
 // saveFlaggedDraft saves f's draft as a Flagged transaction.
-func (b *Bot) saveFlaggedDraft(ctx context.Context, f storage.FollowUp, reason string) (storage.Transaction, error) {
+func (b *Bot) saveFlaggedDraft(ctx context.Context, f storage.FollowUp, reason storage.FlagReason) (storage.Transaction, error) {
 	tx := f.Draft
 	tx.Flagged, tx.FlagReason = true, reason
 	tx.CreatedAt = b.Clock.Now()

@@ -12,7 +12,7 @@ import (
 )
 
 // TransactionExists implements storage.Transactions.
-func (s *Store) TransactionExists(ctx context.Context, amountToman int64, direction string, from, to time.Time) (bool, error) {
+func (s *Store) TransactionExists(ctx context.Context, amountToman int64, direction storage.Direction, from, to time.Time) (bool, error) {
 	var n int
 	err := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM transactions
 		WHERE amount_toman = ? AND direction = ? AND occurred_at >= ? AND occurred_at < ?`,

@@ -31,7 +31,7 @@ type Category struct {
 
 // CategoryKindFor returns the Category kind matching a Transaction's
 // Direction. ok is false for internal transfers, which get no Category.
-func CategoryKindFor(direction string) (kind string, ok bool) {
+func CategoryKindFor(direction Direction) (kind string, ok bool) {
 	switch direction {
 	case DirectionOut:
 		return KindExpense, true

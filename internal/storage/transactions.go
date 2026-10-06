@@ -6,19 +6,25 @@ import (
 	"time"
 )
 
+// Direction is a Transaction's Direction as stored.
+type Direction string
+
 // Direction values stored on a Transaction.
 const (
-	DirectionOut      = "out"
-	DirectionIn       = "in"
-	DirectionInternal = "internal"
+	DirectionOut      Direction = "out"
+	DirectionIn       Direction = "in"
+	DirectionInternal Direction = "internal"
 )
+
+// FlagReason says why a transaction is Flagged.
+type FlagReason string
 
 // Flag reasons stored on a Flagged transaction.
 const (
-	FlagAmountMissing      = "amount_missing"
-	FlagDirectionAmbiguous = "direction_ambiguous"
-	FlagFollowupTimeout    = "followup_timeout"
-	FlagFollowupUnparsed   = "followup_unparsed"
+	FlagAmountMissing      FlagReason = "amount_missing"
+	FlagDirectionAmbiguous FlagReason = "direction_ambiguous"
+	FlagFollowupTimeout    FlagReason = "followup_timeout"
+	FlagFollowupUnparsed   FlagReason = "followup_unparsed"
 )
 
 // Transaction is one saved money movement.
@@ -29,7 +35,7 @@ type Transaction struct {
 	// AmountToman is nil only on a Flagged transaction with no amount.
 	AmountToman *int64
 	// Direction is DirectionOut, DirectionIn or DirectionInternal.
-	Direction string
+	Direction Direction
 	// CategoryID is nil only for internal transfers.
 	CategoryID *int64
 	// Description is the Owner's own words only.
@@ -44,7 +50,7 @@ type Transaction struct {
 	// InputID identifies the Input: see NewInputID.
 	InputID           string
 	Flagged           bool
-	FlagReason        string
+	FlagReason        FlagReason
 	CategorizePending bool
 }
 
@@ -66,7 +72,7 @@ type Transactions interface {
 	DeleteTransaction(ctx context.Context, id int64) (deleted bool, err error)
 	// TransactionExists reports whether a Transaction with this amount and
 	// Direction occurred in [from, to). It is the duplicate check.
-	TransactionExists(ctx context.Context, amountToman int64, direction string, from, to time.Time) (bool, error)
+	TransactionExists(ctx context.Context, amountToman int64, direction Direction, from, to time.Time) (bool, error)
 	// HoldDuplicate keeps a Transaction that was not saved because it looks
 	// like a duplicate, and returns the id for [Save anyway].
 	HoldDuplicate(ctx context.Context, t Transaction) (id int64, err error)
