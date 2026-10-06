@@ -35,6 +35,12 @@ type Callback struct {
 	Run    func(ctx context.Context, b *Bot, q *bale.CallbackQuery) (toast string, err error)
 }
 
+// ReplyHandler handles a Text note sent as a reply to one of the bot's
+// messages (an edit prompt, a Follow-up). It returns handled=false when the
+// replied-to message is not one of its own, and the next handler (finally
+// the Input pipeline) gets the message.
+type ReplyHandler func(ctx context.Context, b *Bot, m *bale.Message) (handled bool, err error)
+
 // TextHandler handles a plain text message (a Text note) from the Owner.
 type TextHandler func(ctx context.Context, b *Bot, m *bale.Message) error
 
@@ -43,6 +49,14 @@ var (
 	callbacks   = map[string]Callback{}
 	textHandler TextHandler
 )
+
+var replyHandlers []ReplyHandler
+
+// RegisterReplyHandler adds a handler for replies to the bot's messages.
+// Call it from init.
+func RegisterReplyHandler(h ReplyHandler) {
+	replyHandlers = append(replyHandlers, h)
+}
 
 // RegisterCommand adds a command. It panics on a duplicate name; call it from init.
 func RegisterCommand(c Command) {

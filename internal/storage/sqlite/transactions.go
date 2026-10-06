@@ -61,6 +61,25 @@ func (s *Store) DeleteTransaction(ctx context.Context, id int64) (bool, error) {
 	return n > 0, nil
 }
 
+// UpdateTransaction implements storage.Transactions.
+func (s *Store) UpdateTransaction(ctx context.Context, t storage.Transaction) (bool, error) {
+	res, err := s.db.ExecContext(ctx, `UPDATE transactions SET
+		occurred_at = ?, amount_toman = ?, direction = ?, category_id = ?,
+		description = ?, flagged = ?, flag_reason = ?, categorize_pending = ?
+	WHERE id = ?`,
+		t.OccurredAt.Unix(), t.AmountToman, t.Direction, t.CategoryID,
+		t.Description, boolInt(t.Flagged), t.FlagReason, boolInt(t.CategorizePending), t.ID,
+	)
+	if err != nil {
+		return false, fmt.Errorf("update transaction %d: %w", t.ID, err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
 // AllTransactions implements storage.Transactions.
 func (s *Store) AllTransactions(ctx context.Context) ([]storage.Transaction, error) {
 	rows, err := s.db.QueryContext(ctx, `SELECT `+transactionColumns+` FROM transactions ORDER BY id`)

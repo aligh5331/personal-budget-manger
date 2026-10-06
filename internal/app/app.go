@@ -77,6 +77,7 @@ func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
 
 		Extractor:    extract.NewMetis(cfg.LLMAPIKey),
 		Transactions: store,
+		EditPrompts:  store,
 	})
 	if err != nil {
 		return err

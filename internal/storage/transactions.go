@@ -70,6 +70,11 @@ type Transactions interface {
 	// TakeHeldDuplicate returns and removes a held duplicate; ok is false
 	// if it was already taken.
 	TakeHeldDuplicate(ctx context.Context, id int64) (t Transaction, ok bool, err error)
+	// UpdateTransaction saves the fields the Owner can change on an
+	// existing Transaction: OccurredAt, AmountToman, Direction, CategoryID,
+	// Description, Flagged, FlagReason and CategorizePending. updated is
+	// false when it was already gone.
+	UpdateTransaction(ctx context.Context, t Transaction) (updated bool, err error)
 	// AllTransactions returns every Transaction, oldest id first (/export).
 	AllTransactions(ctx context.Context) ([]Transaction, error)
 }
