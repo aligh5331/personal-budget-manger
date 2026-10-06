@@ -61,4 +61,9 @@ type Transactions interface {
 	// DeleteTransaction hard-deletes a Transaction by id. deleted is false
 	// when it was already gone.
 	DeleteTransaction(ctx context.Context, id int64) (deleted bool, err error)
+	// UpdateTransaction saves the fields the Owner can change on an
+	// existing Transaction: OccurredAt, AmountToman, Direction, CategoryID,
+	// Description, Flagged, FlagReason and CategorizePending. updated is
+	// false when it was already gone.
+	UpdateTransaction(ctx context.Context, t Transaction) (updated bool, err error)
 }

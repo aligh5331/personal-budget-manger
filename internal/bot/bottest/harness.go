@@ -111,6 +111,7 @@ func (h *Harness) Deps() bot.Deps {
 
 		Extractor:    h.Extractor,
 		Transactions: h.Store,
+		EditPrompts:  h.Store,
 	}
 }
 

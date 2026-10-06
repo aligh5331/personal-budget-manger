@@ -23,6 +23,13 @@ func (b *Bot) handleMessage(ctx context.Context, m *bale.Message) error {
 		}
 		return c.Run(ctx, b, m, args)
 	}
+	if m.ReplyToMessage != nil {
+		for _, h := range replyHandlers {
+			if handled, err := h(ctx, b, m); handled || err != nil {
+				return err
+			}
+		}
+	}
 	if textHandler != nil {
 		return textHandler(ctx, b, m)
 	}

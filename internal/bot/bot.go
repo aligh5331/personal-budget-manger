@@ -33,6 +33,8 @@ type Deps struct {
 	Extractor extract.Extractor
 	// Transactions stores Transactions (#32).
 	Transactions storage.Transactions
+	// EditPrompts stores the questions of the [Edit] flow (#39).
+	EditPrompts storage.EditPrompts
 }
 
 // UpdateSource is the switchable update source (internal/updates.Manager).
