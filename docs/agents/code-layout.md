@@ -45,6 +45,8 @@ Register handlers from an `init` in a new file instead of editing a shared switc
 - Category step: `category.go`, `(*Bot).categorizeTransaction(ctx, &tx)` runs before save in the Input pipeline. It sets `CategoryID` and `CategorizePending` (Categorizer failed after its retry). `MinCategoryConfidence` is 0.7. #37 should call it again once a Follow-up settles amount or Direction (`categorizable` skips Transactions still waiting). `categoryOptions` builds the option list; `categoryText` names a Category.
 - Picker: `cb_category.go`, actions `cat`, `cat:<catID>`, `cat:back`. Reuse `editConfirmation` / `editMessage` to redraw a confirmation in place (#36).
 
+- Background re-categorize (#36): `recategorize.go`, `storage.CategorizeRetries` (table `categorize_retries`, `0036_`). `sendConfirmation` queues a pending Transaction with its confirmation message; `(*Bot).RecategorizeDue` (tests call it after `h.Clock.Advance`) retries every 10 min, 6 times max, and `RunRecategorize` is the production loop. `editMessageAt` edits a remembered message.
+
 A new collaborator (Extractor, Categorizer, another storage interface) is one field in `bot.Deps`, wired in `internal/app/app.go` and in `bottest.Harness.Deps`.
 
 ## Migrations

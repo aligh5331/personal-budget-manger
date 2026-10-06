@@ -119,6 +119,7 @@ func (h *Harness) Deps() bot.Deps {
 		EditPrompts:  h.Store,
 		Categorizer:  h.Categorizer,
 		Categories:   h.Store,
+		Retries:      h.Store,
 	}
 }
 

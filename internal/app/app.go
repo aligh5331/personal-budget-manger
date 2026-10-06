@@ -81,6 +81,7 @@ func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
 		EditPrompts:  store,
 		Categorizer:  categorize.NewJev(cfg.LLMAPIKey),
 		Categories:   store,
+		Retries:      store,
 	})
 	if err != nil {
 		return err
@@ -128,6 +129,7 @@ func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
 		<-backupsDone
 	}()
 	go worker.Run(runCtx)
+	go core.RunRecategorize(runCtx)
 	go func() {
 		log.Info("http listening", "addr", cfg.ListenAddr)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

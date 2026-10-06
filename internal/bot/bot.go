@@ -41,6 +41,8 @@ type Deps struct {
 	Categorizer categorize.Categorizer
 	// Categories stores the Owner's Categories (#35).
 	Categories storage.Categories
+	// Retries is the background re-categorize queue (#36).
+	Retries storage.CategorizeRetries
 }
 
 // UpdateSource is the switchable update source (internal/updates.Manager).
@@ -71,6 +73,9 @@ func New(d Deps) (*Bot, error) {
 	}
 	if d.Categorizer == nil || d.Categories == nil {
 		return nil, errors.New("bot: Categorizer and Categories are required")
+	}
+	if d.Retries == nil {
+		return nil, errors.New("bot: Retries is required")
 	}
 	if d.OwnerID == 0 {
 		return nil, errors.New("bot: OwnerID is required")

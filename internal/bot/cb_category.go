@@ -125,8 +125,14 @@ func (b *Bot) editMessage(ctx context.Context, q *bale.CallbackQuery, text strin
 	if q.Message == nil {
 		return
 	}
+	b.editMessageAt(ctx, q.Message.Chat.ID, q.Message.MessageID, text, markup)
+}
+
+// editMessageAt is editMessage for a message the bot remembered (the
+// background re-categorize edits the original confirmation this way).
+func (b *Bot) editMessageAt(ctx context.Context, chatID, messageID int64, text string, markup *bale.InlineKeyboardMarkup) {
 	if err := b.Bale.EditMessageText(ctx, bale.EditMessageTextParams{
-		ChatID: q.Message.Chat.ID, MessageID: q.Message.MessageID, Text: text, ReplyMarkup: markup,
+		ChatID: chatID, MessageID: messageID, Text: text, ReplyMarkup: markup,
 	}); err != nil {
 		b.Log.Warn("edit confirmation", "err", err)
 	}
