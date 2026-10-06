@@ -66,4 +66,6 @@ type Transactions interface {
 	// Description, Flagged, FlagReason and CategorizePending. updated is
 	// false when it was already gone.
 	UpdateTransaction(ctx context.Context, t Transaction) (updated bool, err error)
+	// AllTransactions returns every Transaction, oldest id first (/export).
+	AllTransactions(ctx context.Context) ([]Transaction, error)
 }
