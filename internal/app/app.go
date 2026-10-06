@@ -16,6 +16,7 @@ import (
 	"github.com/aligh5331/personal-budget-manger/internal/bot"
 	"github.com/aligh5331/personal-budget-manger/internal/clock"
 	"github.com/aligh5331/personal-budget-manger/internal/config"
+	"github.com/aligh5331/personal-budget-manger/internal/extract"
 	"github.com/aligh5331/personal-budget-manger/internal/health"
 	"github.com/aligh5331/personal-budget-manger/internal/storage/sqlite"
 	"github.com/aligh5331/personal-budget-manger/internal/updates"
@@ -45,6 +46,9 @@ func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
 		Log:      log,
 		OwnerID:  cfg.OwnerID,
 		Version:  version.Version,
+
+		Extractor:    extract.NewMetis(cfg.LLMAPIKey),
+		Transactions: store,
 	})
 	if err != nil {
 		return err

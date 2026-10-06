@@ -12,6 +12,7 @@ import (
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 	"github.com/aligh5331/personal-budget-manger/internal/clock"
+	"github.com/aligh5331/personal-budget-manger/internal/extract"
 	"github.com/aligh5331/personal-budget-manger/internal/storage"
 )
 
@@ -24,6 +25,11 @@ type Deps struct {
 	Log      *slog.Logger
 	OwnerID  int64
 	Version  string
+
+	// Extractor reads Inputs (#32).
+	Extractor extract.Extractor
+	// Transactions stores Transactions (#32).
+	Transactions storage.Transactions
 }
 
 // Bot is the bot core. HandleUpdate must be called from one goroutine at a
@@ -38,6 +44,9 @@ type Bot struct {
 func New(d Deps) (*Bot, error) {
 	if d.Bale == nil || d.Clock == nil || d.Settings == nil {
 		return nil, errors.New("bot: Bale, Clock and Settings are required")
+	}
+	if d.Extractor == nil || d.Transactions == nil {
+		return nil, errors.New("bot: Extractor and Transactions are required")
 	}
 	if d.OwnerID == 0 {
 		return nil, errors.New("bot: OwnerID is required")

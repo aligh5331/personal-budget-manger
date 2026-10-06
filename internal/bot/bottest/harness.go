@@ -20,6 +20,7 @@ import (
 	"github.com/aligh5331/personal-budget-manger/internal/bale/balefake"
 	"github.com/aligh5331/personal-budget-manger/internal/bot"
 	"github.com/aligh5331/personal-budget-manger/internal/clock"
+	"github.com/aligh5331/personal-budget-manger/internal/extract/extractfake"
 	"github.com/aligh5331/personal-budget-manger/internal/storage/sqlite"
 )
 
@@ -43,6 +44,9 @@ type Harness struct {
 	Clock *clock.Fake
 	Store *sqlite.Store
 	Logs  *LogRecorder
+	// Extractor is the scripted extraction LLM. Script it with
+	// h.Extractor.Return(...) before sending an Input.
+	Extractor *extractfake.Fake
 
 	dbPath        string
 	nextUpdateID  int64
@@ -57,6 +61,7 @@ func New(t testing.TB) *Harness {
 		Bale:          balefake.New(),
 		Clock:         clock.NewFake(Start),
 		Logs:          &LogRecorder{},
+		Extractor:     extractfake.New(),
 		dbPath:        filepath.Join(t.TempDir(), "bot.db"),
 		nextUpdateID:  1,
 		nextMessageID: 1,
@@ -86,6 +91,9 @@ func (h *Harness) Deps() bot.Deps {
 		Log:      slog.New(h.Logs),
 		OwnerID:  OwnerID,
 		Version:  Version,
+
+		Extractor:    h.Extractor,
+		Transactions: h.Store,
 	}
 }
 
