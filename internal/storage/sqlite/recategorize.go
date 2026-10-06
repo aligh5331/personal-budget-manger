@@ -3,6 +3,8 @@ package sqlite
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aligh5331/personal-budget-manger/internal/storage"
@@ -12,11 +14,11 @@ var _ storage.CategorizeRetries = (*Store)(nil)
 
 // QueueRetry implements storage.CategorizeRetries.
 func (s *Store) QueueRetry(ctx context.Context, r storage.Retry) error {
-	_, err := s.db.ExecContext(ctx, `INSERT INTO categorize_retries (transaction_id, chat_id, message_id, tries, next_at)
-		VALUES (?, ?, ?, ?, ?)
+	_, err := s.db.ExecContext(ctx, `INSERT INTO categorize_retries (transaction_id, chat_id, message_id, listed, tries, next_at)
+		VALUES (?, ?, ?, ?, ?, ?)
 		ON CONFLICT (transaction_id) DO UPDATE SET chat_id = excluded.chat_id,
-			message_id = excluded.message_id, tries = excluded.tries, next_at = excluded.next_at`,
-		r.TransactionID, r.ChatID, r.MessageID, r.Tries, r.NextAt.Unix())
+			message_id = excluded.message_id, listed = excluded.listed, tries = excluded.tries, next_at = excluded.next_at`,
+		r.TransactionID, r.ChatID, r.MessageID, joinIDs(r.Listed), r.Tries, r.NextAt.Unix())
 	if err != nil {
 		return fmt.Errorf("queue retry of transaction %d: %w", r.TransactionID, err)
 	}
@@ -25,7 +27,7 @@ func (s *Store) QueueRetry(ctx context.Context, r storage.Retry) error {
 
 // DueRetries implements storage.CategorizeRetries.
 func (s *Store) DueRetries(ctx context.Context, now time.Time) ([]storage.Retry, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT transaction_id, chat_id, message_id, tries, next_at
+	rows, err := s.db.QueryContext(ctx, `SELECT transaction_id, chat_id, message_id, listed, tries, next_at
 		FROM categorize_retries WHERE next_at <= ? ORDER BY transaction_id`, now.Unix())
 	if err != nil {
 		return nil, fmt.Errorf("list due retries: %w", err)
@@ -35,10 +37,12 @@ func (s *Store) DueRetries(ctx context.Context, now time.Time) ([]storage.Retry,
 	for rows.Next() {
 		var r storage.Retry
 		var next int64
-		if err := rows.Scan(&r.TransactionID, &r.ChatID, &r.MessageID, &r.Tries, &next); err != nil {
+		var listed string
+		if err := rows.Scan(&r.TransactionID, &r.ChatID, &r.MessageID, &listed, &r.Tries, &next); err != nil {
 			return nil, fmt.Errorf("list due retries: %w", err)
 		}
 		r.NextAt = time.Unix(next, 0)
+		r.Listed = splitIDs(listed)
 		out = append(out, r)
 	}
 	return out, rows.Err()
@@ -94,4 +98,22 @@ func (s *Store) ApplyBackgroundCategory(ctx context.Context, id, categoryID int6
 		return false, err
 	}
 	return n > 0, nil
+}
+
+func joinIDs(ids []int64) string {
+	parts := make([]string, len(ids))
+	for i, id := range ids {
+		parts[i] = strconv.FormatInt(id, 10)
+	}
+	return strings.Join(parts, ",")
+}
+
+func splitIDs(s string) []int64 {
+	var ids []int64
+	for _, p := range strings.Split(s, ",") {
+		if id, err := strconv.ParseInt(p, 10, 64); err == nil {
+			ids = append(ids, id)
+		}
+	}
+	return ids
 }

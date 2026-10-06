@@ -22,18 +22,29 @@ const (
 	retryPoll = time.Minute
 )
 
-// queueRecategorize puts a pending Transaction on the queue, remembering the
-// confirmation to edit later.
-func (b *Bot) queueRecategorize(ctx context.Context, tx storage.Transaction, confirmation bale.Message) error {
-	if !tx.CategorizePending {
-		return nil
+// queueRecategorize puts each pending Transaction of txs on the queue,
+// remembering the confirmation (listing all of txs) to edit later.
+func (b *Bot) queueRecategorize(ctx context.Context, txs []storage.Transaction, confirmation bale.Message) error {
+	var listed []int64
+	for _, tx := range txs {
+		listed = append(listed, tx.ID)
 	}
-	return b.Retries.QueueRetry(ctx, storage.Retry{
-		TransactionID: tx.ID,
-		ChatID:        confirmation.Chat.ID,
-		MessageID:     confirmation.MessageID,
-		NextAt:        b.Clock.Now().Add(RetryInterval),
-	})
+	for _, tx := range txs {
+		if !tx.CategorizePending {
+			continue
+		}
+		err := b.Retries.QueueRetry(ctx, storage.Retry{
+			TransactionID: tx.ID,
+			ChatID:        confirmation.Chat.ID,
+			MessageID:     confirmation.MessageID,
+			Listed:        listed,
+			NextAt:        b.Clock.Now().Add(RetryInterval),
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // RunRecategorize runs RecategorizeDue until ctx ends.
@@ -109,8 +120,9 @@ func (b *Bot) retryCategory(ctx context.Context, r storage.Retry) error {
 		return err
 	}
 	b.Log.Info("re-categorized", "transaction", tx.ID, "category", pick.ID, "confidence", pick.Confidence)
-	tx.CategoryID, tx.CategorizePending = &pick.ID, false
 	// The row is already right; a failed edit is only logged.
-	b.editMessageAt(ctx, r.ChatID, r.MessageID, b.confirmationText(ctx, tx), confirmationMarkupFor(tx))
+	if err := b.refreshListed(ctx, r.ChatID, r.MessageID, r.Listed); err != nil {
+		b.Log.Warn("edit confirmation", "err", err)
+	}
 	return nil
 }

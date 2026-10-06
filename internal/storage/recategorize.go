@@ -11,6 +11,8 @@ type Retry struct {
 	TransactionID int64
 	ChatID        int64
 	MessageID     int64
+	// Listed are the ids of every Transaction the confirmation shows.
+	Listed []int64
 	// Tries is how many background tries have failed so far.
 	Tries  int
 	NextAt time.Time

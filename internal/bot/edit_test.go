@@ -74,9 +74,8 @@ func openEdit(t *testing.T, h *bottest.Harness) (bale.Message, int64) {
 
 func TestEditOpensASubMenu(t *testing.T) {
 	h := bottest.New(t)
-	conf, _ := saveOne(t, h)
-
 	msg, _ := openEdit(t, h)
+	conf := h.Sent()[0]
 
 	got := labels(msg.ReplyMarkup)
 	want := []string{"Amount", "Direction", "Date", "Description", "Back"}
