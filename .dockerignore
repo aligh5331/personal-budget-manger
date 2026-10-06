@@ -8,3 +8,5 @@ samples
 docs
 scripts
 *.md
+deploy.sh
+compose.example.yml

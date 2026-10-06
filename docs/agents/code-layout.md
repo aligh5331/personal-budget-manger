@@ -15,6 +15,7 @@ Where things go, for agents implementing tickets of spec #30. Domain words come 
 | `internal/bot/bottest` | The test seam: `bottest.New(t)` gives a bot wired to the fake Bale client, a fixed Asia/Tehran clock (`bottest.Start`, 14 Mehr 1405 12:00) and a real temp SQLite DB. |
 | `internal/storage` | One small interface per aggregate, one file each (`settings.go`, later `transactions.go`, `categories.go`, ...). Methods named by intent. |
 | `internal/storage/sqlite` | The implementation, one file per aggregate, plus `migrations/`. |
+| `internal/backup` | Daily and startup `VACUUM INTO` snapshots in `DATA_DIR/backups`, retention, upload to the Owner. Restore: `docs/runbooks/restore-backup.md`. |
 | `internal/health` | `/healthz` from a list of named checks. |
 | `internal/clock` | `Clock` interface, `System`, `Fake`, `Tehran()`. Never call `time.Now()` in the core; use `b.Clock.Now()`. |
 | `internal/version` | `Version`, set by `-ldflags` at build time. |
@@ -46,3 +47,7 @@ Portable SQL only: `INTEGER` ids, `TEXT`, `BIGINT` amounts and UTC unix seconds,
 ## Checks
 
 `go vet ./...`, `go test ./...` and `golangci-lint run` (v2, default linters) must pass; CI also builds the Docker image. A golangci-lint built with an older Go than `go.mod` fails to load; build it with the current toolchain (`go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`).
+
+## Releases
+
+Pushing a `v*` tag runs `.github/workflows/release.yml`: image `ghcr.io/aligh5331/personal-budget-manger:vX.Y.Z` and `:latest`, plus a GitHub Release with the gzipped `docker save` tarball. The tag is baked in with `-ldflags -X .../internal/version.Version` and shows in `/help` and `bot -version`. On the lab, `deploy.sh` (pull or `docker load`, then `docker compose up -d`) runs next to `compose.yml` copied from `compose.example.yml`.

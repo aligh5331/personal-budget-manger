@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/aligh5331/personal-budget-manger/internal/backup"
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 	"github.com/aligh5331/personal-budget-manger/internal/bot"
 	"github.com/aligh5331/personal-budget-manger/internal/clock"
@@ -24,6 +25,9 @@ import (
 
 // DBFile is the database file name inside DATA_DIR.
 const DBFile = "bot.db"
+
+// BackupsDir is the snapshot folder inside DATA_DIR.
+const BackupsDir = "backups"
 
 // Run starts the bot and blocks until ctx ends.
 func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
@@ -90,10 +94,31 @@ func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
 	))
 	srv := &http.Server{Addr: cfg.ListenAddr, Handler: mux, ReadHeaderTimeout: 10 * time.Second}
 
+	backups := &backup.Job{
+		DB:      store,
+		Dir:     filepath.Join(cfg.DataDir, BackupsDir),
+		Bale:    baleClient,
+		OwnerID: cfg.OwnerID,
+		Clock:   clk,
+		Log:     log.With("component", "backup"),
+	}
+
 	runCtx, stopRun := context.WithCancel(ctx)
 	defer stopRun()
 	errc := make(chan error, 1)
 	var runErr error
+	// The backup job gets its own context so shutdown can stop it and wait,
+	// and the database is never closed under a running VACUUM INTO.
+	backupCtx, stopBackups := context.WithCancel(ctx)
+	backupsDone := make(chan struct{})
+	go func() {
+		defer close(backupsDone)
+		_ = backups.Run(backupCtx)
+	}()
+	defer func() {
+		stopBackups()
+		<-backupsDone
+	}()
 	go worker.Run(runCtx)
 	go func() {
 		log.Info("http listening", "addr", cfg.ListenAddr)
