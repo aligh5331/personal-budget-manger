@@ -82,6 +82,7 @@ func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
 		Categorizer:  categorize.NewJev(cfg.LLMAPIKey),
 		Categories:   store,
 		FollowUps:    store,
+		Retries:      store,
 	})
 	if err != nil {
 		return err
@@ -134,6 +135,7 @@ func Run(ctx context.Context, cfg config.Config, log *slog.Logger) error {
 		log.Warn("expire follow-ups at startup", "err", err)
 	}
 	go core.RunFollowUpTimer(runCtx)
+	go core.RunRecategorize(runCtx)
 	go func() {
 		log.Info("http listening", "addr", cfg.ListenAddr)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

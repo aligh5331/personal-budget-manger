@@ -120,6 +120,7 @@ func (h *Harness) Deps() bot.Deps {
 		Categorizer:  h.Categorizer,
 		Categories:   h.Store,
 		FollowUps:    h.Store,
+		Retries:      h.Store,
 	}
 }
 

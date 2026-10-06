@@ -21,8 +21,11 @@ const removedText = "Removed"
 // sendConfirmations sends one confirmation listing txs (at least one).
 func (b *Bot) sendConfirmations(ctx context.Context, chatID int64, txs []storage.Transaction) error {
 	text, markup := b.renderConfirmations(ctx, txs)
-	_, err := b.Send(ctx, chatID, text, markup)
-	return err
+	msg, err := b.Send(ctx, chatID, text, markup)
+	if err != nil {
+		return err
+	}
+	return b.queueRecategorize(ctx, txs, msg)
 }
 
 // renderConfirmations renders the confirmation for txs; with none left it
@@ -60,8 +63,14 @@ func (b *Bot) renderConfirmations(ctx context.Context, txs []storage.Transaction
 // lists that are still stored. When none is left (or msg carries no
 // Transaction buttons) it becomes "Removed" with no buttons.
 func (b *Bot) refreshConfirmation(ctx context.Context, msg *bale.Message) error {
+	return b.refreshListed(ctx, msg.Chat.ID, msg.MessageID, listedTransactions(msg))
+}
+
+// refreshListed redraws the confirmation (chatID, messageID) from the stored
+// Transactions among ids.
+func (b *Bot) refreshListed(ctx context.Context, chatID, messageID int64, ids []int64) error {
 	var left []storage.Transaction
-	for _, id := range listedTransactions(msg) {
+	for _, id := range ids {
 		tx, ok, err := b.Transactions.TransactionByID(ctx, id)
 		if err != nil {
 			return err
@@ -73,7 +82,7 @@ func (b *Bot) refreshConfirmation(ctx context.Context, msg *bale.Message) error 
 	text, markup := b.renderConfirmations(ctx, left)
 	// Without reply_markup the edit also drops the buttons.
 	return b.Bale.EditMessageText(ctx, bale.EditMessageTextParams{
-		ChatID: msg.Chat.ID, MessageID: msg.MessageID, Text: text, ReplyMarkup: markup,
+		ChatID: chatID, MessageID: messageID, Text: text, ReplyMarkup: markup,
 	})
 }
 

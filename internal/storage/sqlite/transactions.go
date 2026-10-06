@@ -114,6 +114,48 @@ func (s *Store) AllTransactions(ctx context.Context) ([]storage.Transaction, err
 	return all, nil
 }
 
+// ListTransactions implements storage.Transactions.
+func (s *Store) ListTransactions(ctx context.Context, f storage.TransactionFilter, limit, offset int) ([]storage.Transaction, int, error) {
+	where, args := "1 = 1", []any{}
+	if !f.From.IsZero() {
+		where += " AND occurred_at >= ?"
+		args = append(args, f.From.Unix())
+	}
+	if !f.To.IsZero() {
+		where += " AND occurred_at < ?"
+		args = append(args, f.To.Unix())
+	}
+	if f.FlaggedOnly {
+		where += " AND flagged = 1"
+	}
+	if f.CategoryID != nil {
+		where += " AND category_id = ?"
+		args = append(args, *f.CategoryID)
+	}
+	var total int
+	if err := s.db.QueryRowContext(ctx, `SELECT COUNT(*) FROM transactions WHERE `+where, args...).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("count transactions: %w", err)
+	}
+	rows, err := s.db.QueryContext(ctx, `SELECT `+transactionColumns+` FROM transactions WHERE `+where+
+		` ORDER BY occurred_at DESC, id DESC LIMIT ? OFFSET ?`, append(args, limit, offset)...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("list transactions: %w", err)
+	}
+	defer func() { _ = rows.Close() }()
+	var page []storage.Transaction
+	for rows.Next() {
+		t, err := scanTransaction(rows)
+		if err != nil {
+			return nil, 0, fmt.Errorf("list transactions: %w", err)
+		}
+		page = append(page, t)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, fmt.Errorf("list transactions: %w", err)
+	}
+	return page, total, nil
+}
+
 // scanTransaction reads one row selected with transactionColumns.
 func scanTransaction(row interface{ Scan(...any) error }) (storage.Transaction, error) {
 	var (

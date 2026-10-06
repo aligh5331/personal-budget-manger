@@ -45,6 +45,8 @@ type Deps struct {
 
 	// FollowUps stores pending Follow-ups (#37).
 	FollowUps storage.FollowUps
+	// Retries is the background re-categorize queue (#36).
+	Retries storage.CategorizeRetries
 }
 
 // UpdateSource is the switchable update source (internal/updates.Manager).
@@ -65,6 +67,7 @@ type Bot struct {
 	dropLogged map[int64]time.Time // sender -> last "dropped" log line
 	// followMu serializes Follow-up work between the worker and the expiry timer.
 	followMu sync.Mutex
+	lists    *listStore // /transactions list state, by message (#40)
 }
 
 // New validates deps and returns a Bot.
@@ -80,6 +83,9 @@ func New(d Deps) (*Bot, error) {
 	}
 	if d.FollowUps == nil {
 		return nil, errors.New("bot: FollowUps is required")
+	}
+	if d.Retries == nil {
+		return nil, errors.New("bot: Retries is required")
 	}
 	if d.OwnerID == 0 {
 		return nil, errors.New("bot: OwnerID is required")

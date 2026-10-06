@@ -8,11 +8,14 @@
 //   - amounts must appear in the text (and not only as the balance);
 //     bank amounts are rial and become toman (÷10, rounded); note amounts
 //     are colloquial toman, and the bank amount wins; see noteamount.go;
+//
 //   - Direction comes from the sign after the amount, then the bank keyword,
 //     then the Owner's note, then the model; see direction.go;
+//
 //   - the bank date wins, with its year inferred when not printed; the time
 //     is kept only when printed; then a relative date in the note
 //     (دیروز); see date.go and reldate.go;
+//
 //   - the description is only the Owner's own words; see note.go.
 //
 //   - at most MaxBankMessages bank messages per Input, and an equal out/in
