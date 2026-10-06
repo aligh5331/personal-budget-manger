@@ -79,6 +79,9 @@ func runSaveAnyway(ctx context.Context, b *Bot, q *bale.CallbackQuery) (string, 
 		return "Already saved", nil
 	}
 	tx.CreatedAt = b.Clock.Now()
+	if err := b.categorizeTransaction(ctx, &tx); err != nil {
+		return "Couldn't save it, try again.", err
+	}
 	if tx.ID, err = b.Transactions.SaveTransaction(ctx, tx); err != nil {
 		return "Couldn't save it, try again.", err
 	}

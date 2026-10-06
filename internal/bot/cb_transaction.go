@@ -30,7 +30,11 @@ func RegisterTransactionAction(action string, fn TransactionAction) {
 	transactionActions[action] = fn
 }
 
+// An action may carry an argument: t:<id>:<action>:<arg> runs the handler
+// registered for <action>, which reads <arg> with TransactionArg.
+
 // TransactionData builds the callback_data for an action on Transaction id.
+// action may be "<action>:<arg>".
 func TransactionData(id int64, action string) string {
 	return "t:" + strconv.FormatInt(id, 10) + ":" + action
 }
@@ -48,9 +52,19 @@ func runTransactionCallback(ctx context.Context, b *Bot, q *bale.CallbackQuery) 
 	if err != nil || id <= 0 {
 		return staleButtonToast, nil
 	}
-	fn, ok := transactionActions[parts[2]]
+	name, _, _ := strings.Cut(parts[2], ":")
+	fn, ok := transactionActions[name]
 	if !ok {
 		return staleButtonToast, nil
 	}
 	return fn(ctx, b, q, id)
+}
+
+// TransactionArg returns the <arg> of t:<id>:<action>:<arg> ("" when none).
+func TransactionArg(q *bale.CallbackQuery) string {
+	parts := strings.SplitN(q.Data, ":", 4)
+	if len(parts) < 4 {
+		return ""
+	}
+	return parts[3]
 }

@@ -81,11 +81,14 @@ func (b *Bot) exportCSV(ctx context.Context, txs []storage.Transaction) ([]byte,
 	return buf.Bytes(), w.Error()
 }
 
-// exportCategoryName is the Category name column of /export. Categories
-// arrive with #35, which fills this in from the categories table; until then
-// the column is empty.
-func (b *Bot) exportCategoryName(_ context.Context, _ storage.Transaction) (string, error) {
-	return "", nil
+// exportCategoryName is the Category name column of /export: the Category's
+// name even when archived, empty for internal transfers.
+func (b *Bot) exportCategoryName(ctx context.Context, tx storage.Transaction) (string, error) {
+	if tx.CategoryID == nil {
+		return "", nil
+	}
+	c, _, err := b.Categories.CategoryByID(ctx, *tx.CategoryID)
+	return c.Name, err
 }
 
 func utcTime(t time.Time) string { return t.UTC().Format(time.RFC3339) }

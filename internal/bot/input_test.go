@@ -123,7 +123,7 @@ func TestForwardedBankMessageWithNoteIsSaved(t *testing.T) {
 	if want := strconv.FormatInt(u.Message.MessageID, 10) + ":0"; tx.InputID != want {
 		t.Errorf("input_id = %q, want %q", tx.InputID, want)
 	}
-	if tx.Flagged || tx.CategoryID != nil || !tx.CreatedAt.Equal(bottest.Start) {
+	if tx.Flagged || tx.CategoryID == nil || !tx.CreatedAt.Equal(bottest.Start) {
 		t.Errorf("flagged %v category %v created_at %s", tx.Flagged, tx.CategoryID, tx.CreatedAt)
 	}
 }

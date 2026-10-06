@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
+	"slices"
+	"strconv"
 	"testing"
 	"time"
 
@@ -123,5 +125,38 @@ func TestExportWithNoTransactionsSendsJustTheHeader(t *testing.T) {
 
 	if len(rows) != 1 || rows[0][0] != "id" {
 		t.Fatalf("rows = %v, want only the header", rows)
+	}
+}
+
+func TestExportShowsCategoryNamesIncludingArchivedOnes(t *testing.T) {
+	h := bottest.New(t)
+	amount := int64(1000)
+	food := categoryNamed(t, h, "Food")
+	rent := categoryNamed(t, h, "Rent")
+	for i, cat := range []*int64{&food.ID, &rent.ID, nil} {
+		direction := storage.DirectionOut
+		if cat == nil {
+			direction = storage.DirectionInternal
+		}
+		seedTransaction(t, h, storage.Transaction{
+			OccurredAt: bottest.Start, AmountToman: &amount, Direction: direction,
+			CategoryID: cat, RawText: "x", InputID: strconv.Itoa(i) + ":0",
+		})
+	}
+	if _, err := h.Store.DB().Exec(`UPDATE categories SET archived = 1 WHERE name = 'Rent'`); err != nil {
+		t.Fatal(err)
+	}
+
+	rows := exportedRows(t, h)
+
+	var got []string
+	for _, r := range rows[1:] {
+		got = append(got, column(t, rows[0], r, "category"))
+	}
+	if want := []string{"Food", "Rent", ""}; !slices.Equal(got, want) {
+		t.Errorf("category column = %q, want %q", got, want)
+	}
+	if id := column(t, rows[0], rows[1], "category_id"); id != strconv.FormatInt(food.ID, 10) {
+		t.Errorf("category_id = %q", id)
 	}
 }

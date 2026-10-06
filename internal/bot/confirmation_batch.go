@@ -32,19 +32,21 @@ func (b *Bot) renderConfirmations(ctx context.Context, txs []storage.Transaction
 	case 0:
 		return removedText, nil
 	case 1:
-		return b.confirmationText(ctx, txs[0]), confirmationMarkup(txs[0].ID)
+		return b.confirmationText(ctx, txs[0]), confirmationMarkupFor(txs[0])
 	}
 	parts := make([]string, len(txs))
 	var rows [][]bale.InlineKeyboardButton
 	for i, tx := range txs {
 		n := strconv.Itoa(i + 1)
 		parts[i] = n + ") " + b.confirmationText(ctx, tx)
-		row := make([]bale.InlineKeyboardButton, 0, len(confirmationButtons))
-		for _, c := range confirmationButtons {
-			row = append(row, bale.InlineKeyboardButton{Text: c.Label + " " + n, CallbackData: TransactionData(tx.ID, c.Action)})
-		}
-		if len(row) > 0 {
-			rows = append(rows, row)
+		if m := confirmationMarkupFor(tx); m != nil {
+			for _, r := range m.InlineKeyboard {
+				row := make([]bale.InlineKeyboardButton, len(r))
+				for j, btn := range r {
+					row[j] = bale.InlineKeyboardButton{Text: btn.Text + " " + n, CallbackData: btn.CallbackData}
+				}
+				rows = append(rows, row)
+			}
 		}
 	}
 	var markup *bale.InlineKeyboardMarkup

@@ -13,7 +13,7 @@ func init() {
 	RegisterTransactionView(TransactionView{
 		Key: "",
 		Render: func(ctx context.Context, b *Bot, tx storage.Transaction) (string, *bale.InlineKeyboardMarkup) {
-			return b.confirmationText(ctx, tx), confirmationMarkup(tx.ID)
+			return b.confirmationText(ctx, tx), confirmationMarkupFor(tx)
 		},
 	})
 }

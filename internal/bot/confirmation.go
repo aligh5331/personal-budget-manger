@@ -22,6 +22,9 @@ type ConfirmationButton struct {
 	Order  int
 	Label  string
 	Action string
+	// Shown, when set, decides per Transaction whether the button appears
+	// (nil: always).
+	Shown func(tx storage.Transaction) bool
 }
 
 var confirmationButtons []ConfirmationButton
@@ -61,15 +64,6 @@ func (b *Bot) confirmationText(ctx context.Context, tx storage.Transaction) stri
 	return sb.String()
 }
 
-// categoryText names the Transaction's Category. Categories arrive with
-// #35; until then every non-internal Transaction is Uncategorized.
-func (b *Bot) categoryText(_ context.Context, tx storage.Transaction) string {
-	if tx.Direction == storage.DirectionInternal {
-		return "none (internal transfer)"
-	}
-	return "Uncategorized"
-}
-
 func directionText(tx storage.Transaction) string {
 	if tx.Flagged && tx.FlagReason == storage.FlagDirectionAmbiguous {
 		return "expense or income?"
@@ -98,13 +92,20 @@ func flagReasonText(reason string) string {
 	return reason
 }
 
-func confirmationMarkup(id int64) *bale.InlineKeyboardMarkup {
-	if len(confirmationButtons) == 0 {
-		return nil
-	}
+// confirmationMarkupFor is the confirmation buttons that apply to tx.
+func confirmationMarkupFor(tx storage.Transaction) *bale.InlineKeyboardMarkup {
+	return confirmationRow(tx.ID, func(c ConfirmationButton) bool { return c.Shown == nil || c.Shown(tx) })
+}
+
+func confirmationRow(id int64, keep func(ConfirmationButton) bool) *bale.InlineKeyboardMarkup {
 	row := make([]bale.InlineKeyboardButton, 0, len(confirmationButtons))
 	for _, c := range confirmationButtons {
-		row = append(row, bale.InlineKeyboardButton{Text: c.Label, CallbackData: TransactionData(id, c.Action)})
+		if keep(c) {
+			row = append(row, bale.InlineKeyboardButton{Text: c.Label, CallbackData: TransactionData(id, c.Action)})
+		}
+	}
+	if len(row) == 0 {
+		return nil
 	}
 	return &bale.InlineKeyboardMarkup{InlineKeyboard: [][]bale.InlineKeyboardButton{row}}
 }

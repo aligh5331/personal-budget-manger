@@ -80,6 +80,19 @@ func (s *Store) UpdateTransaction(ctx context.Context, t storage.Transaction) (b
 	return n > 0, nil
 }
 
+// SetOwnerCategory implements storage.Transactions.
+func (s *Store) SetOwnerCategory(ctx context.Context, id, categoryID int64) (bool, error) {
+	res, err := s.db.ExecContext(ctx, `UPDATE transactions SET category_id = ?, categorize_pending = 0 WHERE id = ?`, categoryID, id)
+	if err != nil {
+		return false, fmt.Errorf("set category of transaction %d: %w", id, err)
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return n > 0, nil
+}
+
 // AllTransactions implements storage.Transactions.
 func (s *Store) AllTransactions(ctx context.Context) ([]storage.Transaction, error) {
 	rows, err := s.db.QueryContext(ctx, `SELECT `+transactionColumns+` FROM transactions ORDER BY id`)

@@ -312,11 +312,13 @@ func (b *Bot) applyDirection(ctx context.Context, tx *storage.Transaction, dir s
 	return nil
 }
 
-// uncategorizedID is the CategoryID that means Uncategorized. Until the
-// categories table exists (#35) Uncategorized is stored as NULL; #35 points
-// this at the built-in Uncategorized row.
-func (b *Bot) uncategorizedID(_ context.Context) (*int64, error) {
-	return nil, nil
+// uncategorizedID is the CategoryID of the built-in Uncategorized row.
+func (b *Bot) uncategorizedID(ctx context.Context) (*int64, error) {
+	c, err := b.Categories.Uncategorized(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &c.ID, nil
 }
 
 // saveEdit stores tx. A non-empty toast means it could not be saved.
