@@ -34,6 +34,7 @@ Register handlers from an `init` in a new file instead of editing a shared switc
 - Text notes: `input.go` is the Input pipeline (extract, `inputrules.Apply`, save, confirm), one function per step. Extend a step there; don't add a second text handler.
 - Transaction buttons all share prefix `t`. Add an action with `RegisterTransactionAction("edit", fn)` in `cb_<name>.go`, and a button on every confirmation with `RegisterConfirmationButton(ConfirmationButton{Order, Label, Action})` (Undo is 10). `TransactionData(id, action)` builds the data.
 - `confirmation.go` renders the confirmation. Its `categoryText` is a stub that #35 replaces. `FormatToman` and `FormatDate` are the shared display helpers.
+- `cmd_export.go` is `/export` (UTF-8 CSV with BOM, one row per Transaction). Its `exportCategoryName` is a stub returning "" that #35 replaces; a new stored column goes into `exportHeader` and the row.
 
 A new collaborator (Extractor, Categorizer, another storage interface) is one field in `bot.Deps`, wired in `internal/app/app.go` and in `bottest.Harness.Deps`.
 
