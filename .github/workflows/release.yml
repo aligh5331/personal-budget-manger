@@ -1,0 +1,74 @@
+name: Release
+
+# A v* tag (e.g. v1.2.3) publishes the image to ghcr.io as :v1.2.3 and :latest
+# and creates a GitHub Release with a gzipped `docker save` tarball, for labs
+# that cannot reach ghcr.io (load it with `./deploy.sh <tarball>`).
+# Pushes to branches, main included, never release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write  # create the Release
+  packages: write  # push to ghcr.io
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: go vet
+        run: go vet ./...
+      - name: go test
+        run: go test -race ./...
+
+      - name: Image name
+        id: meta
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          repo="${GITHUB_REPOSITORY#*/}"
+          echo "image=ghcr.io/${owner}/${repo,,}" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          echo "tarball=${repo,,}-${GITHUB_REF_NAME}-linux-amd64.tar.gz" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: docker build (version baked in from the tag)
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          docker build --platform linux/amd64 --build-arg VERSION="$TAG" \
+            --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
+            --label org.opencontainers.image.version="$TAG" \
+            -t "$IMAGE:$TAG" -t "$IMAGE:latest" .
+          test "$(docker run --rm "$IMAGE:$TAG" -version)" = "$TAG"
+
+      - name: docker push
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          docker push "$IMAGE:$TAG"
+          docker push "$IMAGE:latest"
+
+      - name: docker save
+        env:
+          IMAGE: ${{ steps.meta.outputs.image }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          TARBALL: ${{ steps.meta.outputs.tarball }}
+        run: docker save "$IMAGE:$TAG" | gzip -9 > "$TARBALL"
+
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          TARBALL: ${{ steps.meta.outputs.tarball }}
+        run: gh release create "$TAG" "$TARBALL" --title "$TAG" --generate-notes --verify-tag

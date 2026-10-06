@@ -46,3 +46,7 @@ Portable SQL only: `INTEGER` ids, `TEXT`, `BIGINT` amounts and UTC unix seconds,
 ## Checks
 
 `go vet ./...`, `go test ./...` and `golangci-lint run` (v2, default linters) must pass; CI also builds the Docker image. A golangci-lint built with an older Go than `go.mod` fails to load; build it with the current toolchain (`go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`).
+
+## Releases
+
+Pushing a `v*` tag runs `.github/workflows/release.yml`: image `ghcr.io/aligh5331/personal-budget-manger:vX.Y.Z` and `:latest`, plus a GitHub Release with the gzipped `docker save` tarball. The tag is baked in with `-ldflags -X .../internal/version.Version` and shows in `/help` and `bot -version`. On the lab, `deploy.sh` (pull or `docker load`, then `docker compose up -d`) runs next to `compose.yml` copied from `compose.example.yml`.
