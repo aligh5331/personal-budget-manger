@@ -40,10 +40,18 @@ func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
 	case out.TooMany:
 		return b.Reply(ctx, m, tooManyReply, nil)
 	}
-	var saved []storage.Transaction
+	var saved, held []storage.Transaction
 	for i, d := range out.Drafts {
 		tx := transactionFromDraft(d, m, i)
 		tx.CreatedAt = now
+		dup, err := b.isDuplicate(ctx, tx, d.HasTime)
+		if err != nil {
+			return err
+		}
+		if dup {
+			held = append(held, tx)
+			continue
+		}
 		id, err := b.Transactions.SaveTransaction(ctx, tx)
 		if err != nil {
 			return err
@@ -51,10 +59,17 @@ func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
 		tx.ID = id
 		saved = append(saved, tx)
 	}
-	if len(saved) == 0 {
-		return nil
+	if len(saved) > 0 {
+		if err := b.sendConfirmations(ctx, m.Chat.ID, saved); err != nil {
+			return err
+		}
 	}
-	return b.sendConfirmations(ctx, m.Chat.ID, saved)
+	for _, tx := range held {
+		if err := b.replyDuplicate(ctx, m.Chat.ID, tx); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // transactionFromDraft maps a draft to the row to save. A draft that still
