@@ -31,10 +31,19 @@ func init() {
 		Order: 20, Label: "Category", Action: catAction,
 		Shown: func(tx storage.Transaction) bool { return tx.Direction != storage.DirectionInternal },
 	})
-	RegisterTransactionAction(catAction, runCategory)
+	registerCategoryPicker("")
 }
 
-func runCategory(ctx context.Context, b *Bot, q *bale.CallbackQuery, id int64) (string, error) {
+// registerCategoryPicker adds the [Category] actions for the view viewKey:
+// the picker is that view redrawn in place (the confirmation, or the
+// /transactions record view, whose actions are "cat@r").
+func registerCategoryPicker(viewKey string) {
+	RegisterTransactionAction(editAction(catAction, viewKey), func(ctx context.Context, b *Bot, q *bale.CallbackQuery, id int64) (string, error) {
+		return b.runCategory(ctx, q, id, viewKey)
+	})
+}
+
+func (b *Bot) runCategory(ctx context.Context, q *bale.CallbackQuery, id int64, viewKey string) (string, error) {
 	tx, ok, err := b.Transactions.TransactionByID(ctx, id)
 	if err != nil {
 		return "Something went wrong, try again.", err
@@ -48,20 +57,20 @@ func runCategory(ctx context.Context, b *Bot, q *bale.CallbackQuery, id int64) (
 	}
 	switch arg := TransactionArg(q); arg {
 	case "":
-		return b.openCategoryPicker(ctx, q, tx, kind)
+		return b.openCategoryPicker(ctx, q, tx, kind, viewKey)
 	case catBack:
-		b.editConfirmation(ctx, q, tx)
+		b.editView(ctx, q, tx, viewKey)
 		return "", nil
 	default:
 		catID, err := strconv.ParseInt(arg, 10, 64)
 		if err != nil {
 			return staleButtonToast, nil
 		}
-		return b.pickCategory(ctx, q, tx, kind, catID)
+		return b.pickCategory(ctx, q, tx, kind, catID, viewKey)
 	}
 }
 
-func (b *Bot) openCategoryPicker(ctx context.Context, q *bale.CallbackQuery, tx storage.Transaction, kind string) (string, error) {
+func (b *Bot) openCategoryPicker(ctx context.Context, q *bale.CallbackQuery, tx storage.Transaction, kind, viewKey string) (string, error) {
 	cats, err := b.Categories.ActiveCategories(ctx, kind)
 	if err != nil {
 		return "Something went wrong, try again.", err
@@ -79,7 +88,7 @@ func (b *Bot) openCategoryPicker(ctx context.Context, q *bale.CallbackQuery, tx 
 		if tx.CategoryID != nil && *tx.CategoryID == c.ID {
 			label = currentMarker + label
 		}
-		row = append(row, bale.InlineKeyboardButton{Text: label, CallbackData: TransactionData(tx.ID, catAction+":"+strconv.FormatInt(c.ID, 10))})
+		row = append(row, bale.InlineKeyboardButton{Text: label, CallbackData: TransactionData(tx.ID, editAction(catAction, viewKey)+":"+strconv.FormatInt(c.ID, 10))})
 		if len(row) == pickerPerRow {
 			rows, row = append(rows, row), nil
 		}
@@ -87,12 +96,13 @@ func (b *Bot) openCategoryPicker(ctx context.Context, q *bale.CallbackQuery, tx 
 	if len(row) > 0 {
 		rows = append(rows, row)
 	}
-	rows = append(rows, []bale.InlineKeyboardButton{{Text: "Back", CallbackData: TransactionData(tx.ID, catAction+":"+catBack)}})
-	b.editMessage(ctx, q, b.confirmationText(ctx, tx), &bale.InlineKeyboardMarkup{InlineKeyboard: rows})
+	rows = append(rows, []bale.InlineKeyboardButton{{Text: "Back", CallbackData: TransactionData(tx.ID, editAction(catAction, viewKey)+":"+catBack)}})
+	text, _ := transactionViews[viewKey].Render(ctx, b, tx)
+	b.editMessage(ctx, q, text, &bale.InlineKeyboardMarkup{InlineKeyboard: rows})
 	return "", nil
 }
 
-func (b *Bot) pickCategory(ctx context.Context, q *bale.CallbackQuery, tx storage.Transaction, kind string, catID int64) (string, error) {
+func (b *Bot) pickCategory(ctx context.Context, q *bale.CallbackQuery, tx storage.Transaction, kind string, catID int64, viewKey string) (string, error) {
 	c, ok, err := b.Categories.CategoryByID(ctx, catID)
 	if err != nil {
 		return "Something went wrong, try again.", err
@@ -109,15 +119,16 @@ func (b *Bot) pickCategory(ctx context.Context, q *bale.CallbackQuery, tx storag
 	}
 	tx.CategoryID = &c.ID
 	tx.CategorizePending = false
-	b.editConfirmation(ctx, q, tx)
+	b.editView(ctx, q, tx, viewKey)
 	return "Category: " + c.Name, nil
 }
 
-// editConfirmation redraws tx's confirmation, with its buttons, on the
-// message the Owner tapped.
-func (b *Bot) editConfirmation(ctx context.Context, q *bale.CallbackQuery, tx storage.Transaction) {
-	b.editMessage(ctx, q, b.confirmationText(ctx, tx), confirmationMarkupFor(tx))
+// editView redraws tx in the tapped message with the view's usual buttons.
+func (b *Bot) editView(ctx context.Context, q *bale.CallbackQuery, tx storage.Transaction, viewKey string) {
+	text, markup := transactionViews[viewKey].Render(ctx, b, tx)
+	b.editMessage(ctx, q, text, markup)
 }
+
 
 // editMessage edits the tapped message; a failed edit is only logged, since
 // the stored data is already right.
