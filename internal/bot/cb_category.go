@@ -129,7 +129,6 @@ func (b *Bot) editView(ctx context.Context, q *bale.CallbackQuery, tx storage.Tr
 	b.editMessage(ctx, q, text, markup)
 }
 
-
 // editMessage edits the tapped message; a failed edit is only logged, since
 // the stored data is already right.
 func (b *Bot) editMessage(ctx context.Context, q *bale.CallbackQuery, text string, markup *bale.InlineKeyboardMarkup) {
