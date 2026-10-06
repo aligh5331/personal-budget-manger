@@ -57,6 +57,8 @@ Register handlers from an `init` in a new file instead of editing a shared switc
 - **For #38 [Fix]:** `(*Bot).OpenFollowUp(ctx, chatID, transactionID) (ok bool, err error)` opens a Follow-up for an existing Flagged transaction. It asks for the amount when there is none, else the Direction. When answered it clears the flag, runs the Category step, updates the row and sends a confirmation; an unreadable answer or no answer leaves the Transaction as it was. `ok` is false when the Transaction is gone, not Flagged, or already has an open Follow-up. A missing field is derived from the row (`AmountToman == nil` is the amount). The `Edit` flow's amount and Direction edits also clear the flag on any Flagged transaction.
 - Tests: `h.ExpireFollowUps()` runs the sweep (move `h.Clock` first); `h.Restart()` runs it too, like startup. `extractfake` keeps its last scripted reading; `h.Extractor.Reset()` clears the script before queueing a new one after an Input was sent.
 
+- `/flagged` (#38): `cmd_flagged.go`, callback prefix `fl` (`fl:p:<page>`, `fl:x:<id>` Fix via `OpenFollowUp`, `fl:d:<id>:<page>` hard delete). Stateless: pages come from `ListTransactions(FlaggedOnly)`, 5 per page.
+
 A new collaborator (Extractor, Categorizer, another storage interface) is one field in `bot.Deps`, wired in `internal/app/app.go` and in `bottest.Harness.Deps`.
 
 ## Migrations
