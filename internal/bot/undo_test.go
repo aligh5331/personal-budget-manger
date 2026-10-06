@@ -3,6 +3,7 @@ package bot_test
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -58,7 +59,14 @@ func TestUndoWorksOnAnOldConfirmation(t *testing.T) {
 func TestUndoTwiceSaysAlreadyRemoved(t *testing.T) {
 	h := bottest.New(t)
 	msg, id := saveOne(t, h)
-	other, otherID := saveOne(t, h)
+	// A different payment, so it is not held back as a duplicate.
+	r := melliReading("")
+	r.Transactions[0].Amount = 1250000
+	h.Extractor.Return(r)
+	h.SendText(strings.Replace(melliBale, "۱,۲۴۰,۰۰۰", "۱,۲۵۰,۰۰۰", 1))
+	conf := h.LastSent()
+	otherID := savedID(t, conf)
+	other := bale.Message{MessageID: 5000 + otherID, Chat: bale.Chat{ID: conf.ChatID, Type: bale.ChatPrivate}, Text: conf.Text}
 
 	h.Tap(msg, fmt.Sprintf("t:%d:undo", id))
 	h.Tap(msg, fmt.Sprintf("t:%d:undo", id))

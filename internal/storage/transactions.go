@@ -61,6 +61,15 @@ type Transactions interface {
 	// DeleteTransaction hard-deletes a Transaction by id. deleted is false
 	// when it was already gone.
 	DeleteTransaction(ctx context.Context, id int64) (deleted bool, err error)
+	// TransactionExists reports whether a Transaction with this amount and
+	// Direction occurred in [from, to). It is the duplicate check.
+	TransactionExists(ctx context.Context, amountToman int64, direction string, from, to time.Time) (bool, error)
+	// HoldDuplicate keeps a Transaction that was not saved because it looks
+	// like a duplicate, and returns the id for [Save anyway].
+	HoldDuplicate(ctx context.Context, t Transaction) (id int64, err error)
+	// TakeHeldDuplicate returns and removes a held duplicate; ok is false
+	// if it was already taken.
+	TakeHeldDuplicate(ctx context.Context, id int64) (t Transaction, ok bool, err error)
 	// UpdateTransaction saves the fields the Owner can change on an
 	// existing Transaction: OccurredAt, AmountToman, Direction, CategoryID,
 	// Description, Flagged, FlagReason and CategorizePending. updated is
@@ -76,6 +85,10 @@ type Transactions interface {
 	// ListTransactions returns one page of the Transactions matching f,
 	// newest first by OccurredAt (then id), and how many match in all.
 	ListTransactions(ctx context.Context, f TransactionFilter, limit, offset int) (page []Transaction, total int, err error)
+	// ReportSummary totals the Transactions occurring in r by Category and
+	// Direction, counts internal transfers and Flagged transactions (see
+	// ReportSummary). Archived Categories keep their lines.
+	ReportSummary(ctx context.Context, r ReportRange) (ReportSummary, error)
 }
 
 // TransactionFilter narrows ListTransactions. The zero value matches every

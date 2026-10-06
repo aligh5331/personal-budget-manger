@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 	"testing"
+	"time"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 	"github.com/aligh5331/personal-budget-manger/internal/bot/bottest"
