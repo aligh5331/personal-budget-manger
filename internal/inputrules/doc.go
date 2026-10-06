@@ -2,7 +2,6 @@ package inputrules
 
 import (
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -56,26 +55,6 @@ func (d doc) tokens() []numToken {
 // isBalanceLine reports whether a line prints the account balance.
 func isBalanceLine(l string) bool {
 	return strings.Contains(l, "مانده") || strings.Contains(l, "موجودی")
-}
-
-// findAmount finds the nth (0-based) printed occurrence of amount outside
-// the balance lines, or the last one if there are fewer. An amount printed
-// only as the balance does not count: the balance is never the amount.
-func (d doc) findAmount(amount int64, nth int) (numToken, bool) {
-	if amount <= 0 {
-		return numToken{}, false
-	}
-	want := strconv.FormatInt(amount, 10)
-	var hits []numToken
-	for _, t := range d.tokens() {
-		if t.value == want && !isBalanceLine(d.lines[t.line]) {
-			hits = append(hits, t)
-		}
-	}
-	if len(hits) == 0 {
-		return numToken{}, false
-	}
-	return hits[min(nth, len(hits)-1)], true
 }
 
 // paragraph returns the lines of paragraph p.

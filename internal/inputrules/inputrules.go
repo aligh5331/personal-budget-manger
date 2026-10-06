@@ -6,11 +6,13 @@
 // Input text:
 //
 //   - amounts must appear in the text (and not only as the balance);
-//     bank amounts are rial and become toman (÷10, rounded);
+//     bank amounts are rial and become toman (÷10, rounded); note amounts
+//     are colloquial toman, and the bank amount wins; see noteamount.go;
 //   - Direction comes from the sign after the amount, then the bank keyword,
 //     then the Owner's note, then the model; see direction.go;
 //   - the bank date wins, with its year inferred when not printed; the time
-//     is kept only when printed; see date.go;
+//     is kept only when printed; then a relative date in the note
+//     (دیروز); see date.go and reldate.go;
 //   - the description is only the Owner's own words; see note.go.
 //
 //   - at most MaxBankMessages bank messages per Input, and an equal out/in
@@ -109,13 +111,13 @@ func Apply(in Input) Outcome {
 	for _, it := range ex.Transactions {
 		dr := Draft{Description: desc, BankLabel: bankLabel(in.Text, it.BankLabel)}
 
-		tok, found := d.findAmount(it.Amount, seen[it.Amount])
+		tok, toman, found := readAmount(d, desc, it, seen[it.Amount])
 		seen[it.Amount]++
 		if found {
-			dr.AmountToman, dr.HasAmount = toToman(it.Amount, it.AmountUnit), true
+			dr.AmountToman, dr.HasAmount = toman, true
 		}
 		dr.Direction = direction(d, tok, found, desc, it)
-		dr.OccurredAt, dr.HasTime = occurredAt(d, it, now)
+		dr.OccurredAt, dr.HasTime = occurredAt(d, it, now, desc)
 
 		switch {
 		case !dr.HasAmount:
@@ -127,15 +129,6 @@ func Apply(in Input) Outcome {
 	}
 	out.Drafts = mergeInternal(out.Drafts)
 	return out
-}
-
-// toToman converts an amount the model read. Bank amounts are rial unless
-// the model says toman (an amount from the Owner's note): ÷10, rounded.
-func toToman(amount int64, unit string) int64 {
-	if unit == extract.UnitToman {
-		return amount
-	}
-	return (amount + 5) / 10
 }
 
 // bankLabel keeps the model's bank label only if it is in the text.
