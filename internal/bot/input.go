@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 	"github.com/aligh5331/personal-budget-manger/internal/inputrules"
@@ -20,6 +21,9 @@ const (
 	extractionFailedReply = "Couldn't read that right now. Please send it again in a minute."
 )
 
+var tooManyReply = fmt.Sprintf("That's more than %d bank messages in one go, so nothing was saved. "+
+	"Please resend them in smaller batches of up to %d.", inputrules.MaxBankMessages, inputrules.MaxBankMessages)
+
 func init() { SetTextHandler(handleInput) }
 
 func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
@@ -30,9 +34,13 @@ func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
 		return b.Reply(ctx, m, extractionFailedReply, nil)
 	}
 	out := inputrules.Apply(inputrules.Input{Text: m.Text, Extraction: reading, Now: now})
-	if !out.IsTransaction {
+	switch {
+	case !out.IsTransaction:
 		return b.Reply(ctx, m, noTransactionReply, nil)
+	case out.TooMany:
+		return b.Reply(ctx, m, tooManyReply, nil)
 	}
+	var saved []storage.Transaction
 	for i, d := range out.Drafts {
 		tx := transactionFromDraft(d, m, i)
 		tx.CreatedAt = now
@@ -41,11 +49,12 @@ func handleInput(ctx context.Context, b *Bot, m *bale.Message) error {
 			return err
 		}
 		tx.ID = id
-		if err := b.sendConfirmation(ctx, m.Chat.ID, tx); err != nil {
-			return err
-		}
+		saved = append(saved, tx)
 	}
-	return nil
+	if len(saved) == 0 {
+		return nil
+	}
+	return b.sendConfirmations(ctx, m.Chat.ID, saved)
 }
 
 // transactionFromDraft maps a draft to the row to save. A draft that still
@@ -64,8 +73,11 @@ func transactionFromDraft(d inputrules.Draft, m *bale.Message, index int) storag
 		amount := d.AmountToman
 		tx.AmountToman = &amount
 	}
-	if d.Direction == inputrules.In {
+	switch d.Direction {
+	case inputrules.In:
 		tx.Direction = storage.DirectionIn
+	case inputrules.Internal:
+		tx.Direction = storage.DirectionInternal
 	}
 	switch d.FollowUp {
 	case inputrules.FieldAmount:

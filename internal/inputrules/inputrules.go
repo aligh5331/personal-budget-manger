@@ -13,8 +13,11 @@
 //     is kept only when printed; see date.go;
 //   - the description is only the Owner's own words; see note.go.
 //
-// Apply is the only entry point. Later rules (colloquial toman, batches,
-// internal transfers, relative dates) extend it here, behind the same seam.
+//   - at most MaxBankMessages bank messages per Input, and an equal out/in
+//     pair at the same minute is one internal transfer; see batch.go.
+//
+// Apply is the only entry point. Later rules extend it here, behind the
+// same seam.
 package inputrules
 
 import (
@@ -32,6 +35,8 @@ const (
 	Out       Direction = "out"
 	In        Direction = "in"
 	Ambiguous Direction = "ambiguous"
+	// Internal is a transfer between the Owner's own accounts (batch.go).
+	Internal Direction = "internal"
 )
 
 // Field names what a Follow-up must ask for.
@@ -61,6 +66,9 @@ type Outcome struct {
 	IsTransaction bool
 	// Drafts holds one draft per money movement, in Input order.
 	Drafts []Draft
+	// TooMany is true when the Input holds more than MaxBankMessages bank
+	// messages; Drafts is then empty and nothing may be saved.
+	TooMany bool
 }
 
 // Draft is a Transaction before it is saved.
@@ -89,6 +97,9 @@ func Apply(in Input) Outcome {
 	if !ex.IsTransaction || len(ex.Transactions) == 0 {
 		return Outcome{}
 	}
+	if tooMany(len(ex.Transactions)) {
+		return Outcome{IsTransaction: true, TooMany: true}
+	}
 	now := in.Now.In(clock.Tehran())
 	d := parseDoc(in.Text)
 	desc := description(d, in.Text, ex.Note)
@@ -114,6 +125,7 @@ func Apply(in Input) Outcome {
 		}
 		out.Drafts = append(out.Drafts, dr)
 	}
+	out.Drafts = mergeInternal(out.Drafts)
 	return out
 }
 
