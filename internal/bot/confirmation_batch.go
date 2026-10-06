@@ -96,12 +96,12 @@ func listedTransactions(msg *bale.Message) []int64 {
 	var ids []int64
 	for _, row := range msg.ReplyMarkup.InlineKeyboard {
 		for _, btn := range row {
-			parts := strings.SplitN(btn.CallbackData, ":", 3)
-			if len(parts) != 3 || parts[0] != "t" {
+			data := ParseCallbackData(btn.CallbackData)
+			if data.Len() < 3 || data.Part(0) != transactionPrefix {
 				continue
 			}
-			id, err := strconv.ParseInt(parts[1], 10, 64)
-			if err != nil || id <= 0 || seen[id] {
+			id, ok := data.Int(1)
+			if !ok || id <= 0 || seen[id] {
 				continue
 			}
 			seen[id] = true

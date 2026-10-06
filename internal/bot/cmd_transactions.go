@@ -131,43 +131,28 @@ func (b *Bot) renderList(ctx context.Context, st *listState) (string, *bale.Inli
 	if err != nil {
 		return "", nil, err
 	}
-	if st.page < 0 {
-		st.page = 0
-	}
-	txs, total, err := b.Transactions.ListTransactions(ctx, f, listPageSize, st.page*listPageSize)
+	p, err := b.listPage(ctx, f, listPageSize, st.page)
 	if err != nil {
 		return "", nil, err
 	}
-	pages := (total + listPageSize - 1) / listPageSize
-	if st.page > 0 && st.page >= pages {
-		st.page = max(pages-1, 0)
-		if txs, total, err = b.Transactions.ListTransactions(ctx, f, listPageSize, st.page*listPageSize); err != nil {
-			return "", nil, err
-		}
-	}
+	st.page = p.Page
 
 	var sb strings.Builder
 	fmt.Fprintf(&sb, "Transactions · %s\n", title)
-	if total == 0 {
+	if p.Total == 0 {
 		sb.WriteString("Nothing here.")
 	} else {
-		fmt.Fprintf(&sb, "%d in all · page %d of %d", total, st.page+1, pages)
+		fmt.Fprintf(&sb, "%d in all · page %d of %d", p.Total, p.Page+1, p.Pages)
 	}
 
 	var rows [][]bale.InlineKeyboardButton
-	for _, tx := range txs {
+	for _, tx := range p.Txs {
 		rows = append(rows, []bale.InlineKeyboardButton{{
 			Text:         b.rowLabel(ctx, tx),
-			CallbackData: fmt.Sprintf("l:r:%d", tx.ID),
+			CallbackData: BuildCallbackData(listPrefix, "r", tx.ID),
 		}})
 	}
-	var nav []bale.InlineKeyboardButton
-	if st.page > 0 {
-		nav = append(nav, bale.InlineKeyboardButton{Text: "Newer", CallbackData: fmt.Sprintf("l:p:%d", st.page-1)})
-	}
-	if st.page+1 < pages {
-		nav = append(nav, bale.InlineKeyboardButton{Text: "Older", CallbackData: fmt.Sprintf("l:p:%d", st.page+1)})
-	}
+	nav := p.navRow(func(page int) string { return BuildCallbackData(listPrefix, "p", page) })
 	if len(nav) > 0 {
 		rows = append(rows, nav)
 	}
@@ -175,9 +160,9 @@ func (b *Bot) renderList(ctx context.Context, st *listState) (string, *bale.Inli
 		if st.filter == code {
 			label = currentMarker + label
 		}
-		data := "l:f:" + code
+		data := BuildCallbackData(listPrefix, "f", code)
 		if code == filterCategory {
-			data = "l:c"
+			data = BuildCallbackData(listPrefix, "c")
 		}
 		return bale.InlineKeyboardButton{Text: label, CallbackData: data}
 	}

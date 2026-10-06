@@ -3,7 +3,6 @@ package bot
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
@@ -41,40 +40,25 @@ func runFlagged(ctx context.Context, b *Bot, m *bale.Message, _ string) error {
 
 // renderFlagged draws one page, clamped to the pages that exist.
 func (b *Bot) renderFlagged(ctx context.Context, page int) (string, *bale.InlineKeyboardMarkup, error) {
-	f := storage.TransactionFilter{FlaggedOnly: true}
-	page = max(page, 0)
-	txs, total, err := b.Transactions.ListTransactions(ctx, f, flaggedPageSize, page*flaggedPageSize)
+	p, err := b.listPage(ctx, storage.TransactionFilter{FlaggedOnly: true}, flaggedPageSize, page)
 	if err != nil {
 		return "", nil, err
 	}
-	pages := (total + flaggedPageSize - 1) / flaggedPageSize
-	if page > 0 && page >= pages {
-		page = max(pages-1, 0)
-		if txs, total, err = b.Transactions.ListTransactions(ctx, f, flaggedPageSize, page*flaggedPageSize); err != nil {
-			return "", nil, err
-		}
-	}
-	if total == 0 {
+	if p.Total == 0 {
 		return "Nothing is flagged.", nil, nil
 	}
 
 	var sb strings.Builder
-	fmt.Fprintf(&sb, "Flagged · %d in all · page %d of %d\nThey stay out of totals until fixed.", total, page+1, pages)
+	fmt.Fprintf(&sb, "Flagged · %d in all · page %d of %d\nThey stay out of totals until fixed.", p.Total, p.Page+1, p.Pages)
 	var rows [][]bale.InlineKeyboardButton
-	for i, tx := range txs {
+	for i, tx := range p.Txs {
 		fmt.Fprintf(&sb, "\n\n%d. %s", i+1, flaggedLine(tx))
 		rows = append(rows, []bale.InlineKeyboardButton{
-			{Text: fmt.Sprintf("Fix %d", i+1), CallbackData: fmt.Sprintf("%s:x:%d", flaggedPrefix, tx.ID)},
-			{Text: fmt.Sprintf("Delete %d", i+1), CallbackData: fmt.Sprintf("%s:d:%d:%d", flaggedPrefix, tx.ID, page)},
+			{Text: fmt.Sprintf("Fix %d", i+1), CallbackData: BuildCallbackData(flaggedPrefix, "x", tx.ID)},
+			{Text: fmt.Sprintf("Delete %d", i+1), CallbackData: BuildCallbackData(flaggedPrefix, "d", tx.ID, p.Page)},
 		})
 	}
-	var nav []bale.InlineKeyboardButton
-	if page > 0 {
-		nav = append(nav, bale.InlineKeyboardButton{Text: "Newer", CallbackData: fmt.Sprintf("%s:p:%d", flaggedPrefix, page-1)})
-	}
-	if page+1 < pages {
-		nav = append(nav, bale.InlineKeyboardButton{Text: "Older", CallbackData: fmt.Sprintf("%s:p:%d", flaggedPrefix, page+1)})
-	}
+	nav := p.navRow(func(page int) string { return BuildCallbackData(flaggedPrefix, "p", page) })
 	if len(nav) > 0 {
 		rows = append(rows, nav)
 	}
@@ -95,15 +79,12 @@ func runFlaggedCallback(ctx context.Context, b *Bot, q *bale.CallbackQuery) (str
 	if q.Message == nil {
 		return "", nil
 	}
-	parts := strings.Split(q.Data, ":")
-	if len(parts) < 3 {
+	data := ParseCallbackData(q.Data)
+	n, ok := data.Int(2)
+	if !ok {
 		return "", nil
 	}
-	n, err := strconv.ParseInt(parts[2], 10, 64)
-	if err != nil {
-		return "", nil
-	}
-	switch parts[1] {
+	switch data.Part(1) {
 	case "p":
 		return "", b.showFlagged(ctx, q, int(n))
 	case "x":
@@ -116,14 +97,11 @@ func runFlaggedCallback(ctx context.Context, b *Bot, q *bale.CallbackQuery) (str
 		}
 		return "Question sent", nil
 	case "d":
-		page := 0
-		if len(parts) > 3 {
-			page, _ = strconv.Atoi(parts[3])
-		}
+		page, _ := data.Int(3)
 		if _, err := b.Transactions.DeleteTransaction(ctx, n); err != nil {
 			return "Couldn't delete it, try again.", err
 		}
-		return "Deleted", b.showFlagged(ctx, q, page)
+		return "Deleted", b.showFlagged(ctx, q, int(page))
 	}
 	return "", nil
 }

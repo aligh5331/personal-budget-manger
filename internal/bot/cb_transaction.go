@@ -3,8 +3,6 @@ package bot
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
 )
@@ -18,6 +16,8 @@ import (
 type TransactionAction func(ctx context.Context, b *Bot, q *bale.CallbackQuery, id int64) (toast string, err error)
 
 var transactionActions = map[string]TransactionAction{}
+
+const transactionPrefix = "t"
 
 const staleButtonToast = "This button no longer works."
 
@@ -36,24 +36,20 @@ func RegisterTransactionAction(action string, fn TransactionAction) {
 // TransactionData builds the callback_data for an action on Transaction id.
 // action may be "<action>:<arg>".
 func TransactionData(id int64, action string) string {
-	return "t:" + strconv.FormatInt(id, 10) + ":" + action
+	return BuildCallbackData(transactionPrefix, id, action)
 }
 
 func init() {
-	RegisterCallback(Callback{Prefix: "t", Run: runTransactionCallback})
+	RegisterCallback(Callback{Prefix: transactionPrefix, Run: runTransactionCallback})
 }
 
 func runTransactionCallback(ctx context.Context, b *Bot, q *bale.CallbackQuery) (string, error) {
-	parts := strings.SplitN(q.Data, ":", 3)
-	if len(parts) != 3 {
+	data := ParseCallbackData(q.Data)
+	id, ok := data.Int(1)
+	if data.Len() < 3 || !ok || id <= 0 {
 		return staleButtonToast, nil
 	}
-	id, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil || id <= 0 {
-		return staleButtonToast, nil
-	}
-	name, _, _ := strings.Cut(parts[2], ":")
-	fn, ok := transactionActions[name]
+	fn, ok := transactionActions[data.Part(2)]
 	if !ok {
 		return staleButtonToast, nil
 	}
@@ -62,9 +58,5 @@ func runTransactionCallback(ctx context.Context, b *Bot, q *bale.CallbackQuery) 
 
 // TransactionArg returns the <arg> of t:<id>:<action>:<arg> ("" when none).
 func TransactionArg(q *bale.CallbackQuery) string {
-	parts := strings.SplitN(q.Data, ":", 4)
-	if len(parts) < 4 {
-		return ""
-	}
-	return parts[3]
+	return ParseCallbackData(q.Data).Rest(3)
 }

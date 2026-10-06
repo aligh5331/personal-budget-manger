@@ -63,13 +63,13 @@ func (b *Bot) categoriesView(ctx context.Context, archived bool) (string, *bale.
 	for _, c := range append(expense, income...) {
 		id := strconv.FormatInt(c.ID, 10)
 		rows = append(rows, []bale.InlineKeyboardButton{
-			{Text: "Rename " + c.Name, CallbackData: categoriesPrefix + ":" + id + ":ren"},
-			{Text: "Archive " + c.Name, CallbackData: categoriesPrefix + ":" + id + ":arc"},
+			{Text: "Rename " + c.Name, CallbackData: BuildCallbackData(categoriesPrefix, id, "ren")},
+			{Text: "Archive " + c.Name, CallbackData: BuildCallbackData(categoriesPrefix, id, "arc")},
 		})
 	}
 	rows = append(rows, []bale.InlineKeyboardButton{
-		{Text: "Add", CallbackData: categoriesPrefix + ":add"},
-		{Text: "Show archived", CallbackData: categoriesPrefix + ":archived"},
+		{Text: "Add", CallbackData: BuildCallbackData(categoriesPrefix, "add")},
+		{Text: "Show archived", CallbackData: BuildCallbackData(categoriesPrefix, "archived")},
 	})
 	return text, &bale.InlineKeyboardMarkup{InlineKeyboard: rows}, nil
 }
@@ -86,10 +86,10 @@ func (b *Bot) archivedView(ctx context.Context) (string, *bale.InlineKeyboardMar
 	var rows [][]bale.InlineKeyboardButton
 	for _, c := range cs {
 		rows = append(rows, []bale.InlineKeyboardButton{
-			{Text: "Unarchive " + c.Name + " (" + c.Kind + ")", CallbackData: categoriesPrefix + ":" + strconv.FormatInt(c.ID, 10) + ":unarc"},
+			{Text: "Unarchive " + c.Name + " (" + c.Kind + ")", CallbackData: BuildCallbackData(categoriesPrefix, c.ID, "unarc")},
 		})
 	}
-	rows = append(rows, []bale.InlineKeyboardButton{{Text: "Back", CallbackData: categoriesPrefix + ":list"}})
+	rows = append(rows, []bale.InlineKeyboardButton{{Text: "Back", CallbackData: BuildCallbackData(categoriesPrefix, "list")}})
 	return text, &bale.InlineKeyboardMarkup{InlineKeyboard: rows}, nil
 }
 
@@ -105,21 +105,21 @@ func categoryNames(cs []storage.Category) string {
 }
 
 func runCategoriesCallback(ctx context.Context, b *Bot, q *bale.CallbackQuery) (string, error) {
-	parts := strings.Split(q.Data, ":")
+	data := ParseCallbackData(q.Data)
 	switch {
-	case len(parts) == 2 && parts[1] == "list":
+	case data.Len() == 2 && data.Part(1) == "list":
 		return "", b.redrawCategories(ctx, q.Message, false)
-	case len(parts) == 2 && parts[1] == "archived":
+	case data.Len() == 2 && data.Part(1) == "archived":
 		return "", b.redrawCategories(ctx, q.Message, true)
-	case len(parts) == 2 && parts[1] == "add":
+	case data.Len() == 2 && data.Part(1) == "add":
 		return "", b.askCategory(ctx, q.Message, storage.CategoryPromptAdd, 0,
 			"Send the new Category as one line: name | Persian hint | expense or income.\nFor example: "+categoryExample+"\nThe hint is optional. Reply to this message.")
-	case len(parts) == 3:
-		id, err := strconv.ParseInt(parts[1], 10, 64)
-		if err != nil {
+	case data.Len() == 3:
+		id, ok := data.Int(1)
+		if !ok {
 			return staleButtonToast, nil
 		}
-		return b.categoryAction(ctx, q, id, parts[2])
+		return b.categoryAction(ctx, q, id, data.Part(2))
 	}
 	return staleButtonToast, nil
 }

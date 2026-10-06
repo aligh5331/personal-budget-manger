@@ -2,8 +2,6 @@ package bot
 
 import (
 	"context"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/aligh5331/personal-budget-manger/internal/bale"
@@ -48,7 +46,7 @@ func (b *Bot) replyDuplicate(ctx context.Context, chatID int64, tx storage.Trans
 	}
 	text := "This looks like a duplicate, so I didn't save it:\n" + b.confirmationSummary(ctx, tx)
 	_, err = b.Send(ctx, chatID, text, &bale.InlineKeyboardMarkup{InlineKeyboard: [][]bale.InlineKeyboardButton{{
-		{Text: "Save anyway", CallbackData: "d:" + strconv.FormatInt(id, 10) + ":save"},
+		{Text: "Save anyway", CallbackData: BuildCallbackData("d", id, "save")},
 	}}})
 	return err
 }
@@ -63,12 +61,9 @@ func (b *Bot) confirmationSummary(_ context.Context, tx storage.Transaction) str
 }
 
 func runSaveAnyway(ctx context.Context, b *Bot, q *bale.CallbackQuery) (string, error) {
-	parts := strings.SplitN(q.Data, ":", 3)
-	if len(parts) != 3 || parts[2] != "save" {
-		return staleButtonToast, nil
-	}
-	id, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil || id <= 0 {
+	data := ParseCallbackData(q.Data)
+	id, ok := data.Int(1)
+	if data.Rest(2) != "save" || !ok || id <= 0 {
 		return staleButtonToast, nil
 	}
 	tx, ok, err := b.Transactions.TakeHeldDuplicate(ctx, id)

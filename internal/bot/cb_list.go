@@ -25,6 +25,7 @@ import (
 // t:<id>:del@r, del.yes@r and del.no@r.
 
 const (
+	listPrefix     = "l"
 	staleListToast = "This list expired, send /transactions"
 	recordViewKey  = "r"
 	actDelete      = "del"
@@ -33,7 +34,7 @@ const (
 )
 
 func init() {
-	RegisterCallback(Callback{Prefix: "l", Run: runListCallback})
+	RegisterCallback(Callback{Prefix: listPrefix, Run: runListCallback})
 	RegisterTransactionView(TransactionView{Key: recordViewKey, Render: renderRecord})
 	registerCategoryPicker(recordViewKey)
 	for act, fn := range map[string]func(*Bot, context.Context, *bale.CallbackQuery, int64) (string, error){
@@ -55,15 +56,12 @@ func runListCallback(ctx context.Context, b *Bot, q *bale.CallbackQuery) (string
 	if !ok {
 		return staleListToast, nil
 	}
-	parts := strings.SplitN(q.Data, ":", 3)
-	if len(parts) < 2 {
+	data := ParseCallbackData(q.Data)
+	if data.Len() < 2 {
 		return staleListToast, nil
 	}
-	arg := ""
-	if len(parts) == 3 {
-		arg = parts[2]
-	}
-	switch parts[1] {
+	arg := data.Rest(2)
+	switch data.Part(1) {
 	case "p":
 		page, err := strconv.Atoi(arg)
 		if err != nil || page < 0 {
@@ -134,7 +132,7 @@ func (b *Bot) openListCategoryPicker(ctx context.Context, q *bale.CallbackQuery,
 		if st.filter == filterCategory && st.categoryID == c.ID {
 			label = currentMarker + label
 		}
-		row = append(row, bale.InlineKeyboardButton{Text: label, CallbackData: fmt.Sprintf("l:c:%d", c.ID)})
+		row = append(row, bale.InlineKeyboardButton{Text: label, CallbackData: BuildCallbackData(listPrefix, "c", c.ID)})
 		if len(row) == pickerPerRow {
 			rows, row = append(rows, row), nil
 		}
@@ -142,7 +140,7 @@ func (b *Bot) openListCategoryPicker(ctx context.Context, q *bale.CallbackQuery,
 	if len(row) > 0 {
 		rows = append(rows, row)
 	}
-	rows = append(rows, []bale.InlineKeyboardButton{{Text: "Back", CallbackData: fmt.Sprintf("l:p:%d", st.page)}})
+	rows = append(rows, []bale.InlineKeyboardButton{{Text: "Back", CallbackData: BuildCallbackData(listPrefix, "p", st.page)}})
 	b.editMessage(ctx, q, "Show which Category?", &bale.InlineKeyboardMarkup{InlineKeyboard: rows})
 	return "", nil
 }
@@ -197,7 +195,7 @@ func recordMarkup(tx storage.Transaction) *bale.InlineKeyboardMarkup {
 	row = append(row, bale.InlineKeyboardButton{Text: "Delete", CallbackData: TransactionData(tx.ID, editAction(actDelete, recordViewKey))})
 	return &bale.InlineKeyboardMarkup{InlineKeyboard: [][]bale.InlineKeyboardButton{
 		row,
-		{{Text: "Back to list", CallbackData: "l:b"}},
+		{{Text: "Back to list", CallbackData: BuildCallbackData(listPrefix, "b")}},
 	}}
 }
 

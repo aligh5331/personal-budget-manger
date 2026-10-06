@@ -3,7 +3,6 @@ package bot
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -149,7 +148,7 @@ func (b *Bot) followUpQuestion(_ context.Context, f storage.FollowUp) (string, *
 		summary, FormatDate(tx.OccurredAt), understood)
 	row := make([]bale.InlineKeyboardButton, 0, len(directionChoices))
 	for _, c := range directionChoices {
-		row = append(row, bale.InlineKeyboardButton{Text: c.label, CallbackData: followUpPrefix + ":" + strconv.FormatInt(f.ID, 10) + ":" + c.dir})
+		row = append(row, bale.InlineKeyboardButton{Text: c.label, CallbackData: BuildCallbackData(followUpPrefix, f.ID, c.dir)})
 	}
 	return text, &bale.InlineKeyboardMarkup{InlineKeyboard: [][]bale.InlineKeyboardButton{row}}
 }
@@ -217,15 +216,12 @@ func parseDirectionReply(text string) (string, bool) {
 
 // runFollowUpButton handles f:<id>:<direction>.
 func runFollowUpButton(ctx context.Context, b *Bot, q *bale.CallbackQuery) (string, error) {
-	parts := strings.SplitN(q.Data, ":", 3)
-	if len(parts) != 3 {
+	data := ParseCallbackData(q.Data)
+	id, ok := data.Int(1)
+	if data.Len() < 3 || !ok || id <= 0 {
 		return staleButtonToast, nil
 	}
-	id, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil || id <= 0 {
-		return staleButtonToast, nil
-	}
-	dir := parts[2]
+	dir := data.Rest(2)
 	if dir != storage.DirectionOut && dir != storage.DirectionIn && dir != storage.DirectionInternal {
 		return staleButtonToast, nil
 	}
