@@ -13,7 +13,7 @@ import (
 var _ storage.Transactions = (*Store)(nil)
 
 const transactionColumns = `id, created_at, occurred_at, amount_toman, direction, category_id,
-	description, bank_label, raw_text, input_id, flagged, flag_reason, categorize_pending`
+	description, bank_label, raw_text, input_id, flagged, flag_reason, categorize_pending, categorizer_text`
 
 // SaveTransaction implements storage.Transactions.
 func (s *Store) SaveTransaction(ctx context.Context, t storage.Transaction) (int64, error) {
@@ -24,10 +24,11 @@ func (s *Store) SaveTransaction(ctx context.Context, t storage.Transaction) (int
 	var id int64
 	err := s.db.QueryRowContext(ctx, `INSERT INTO transactions (
 		created_at, occurred_at, amount_toman, direction, category_id,
-		description, bank_label, raw_text, input_id, flagged, flag_reason, categorize_pending
-	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+		description, bank_label, raw_text, input_id, flagged, flag_reason, categorize_pending, categorizer_text
+	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
 		t.CreatedAt.Unix(), t.OccurredAt.Unix(), t.AmountToman, t.Direction, t.CategoryID,
 		t.Description, bankLabel, t.RawText, t.InputID, boolInt(t.Flagged), t.FlagReason, boolInt(t.CategorizePending),
+		t.CategorizerText,
 	).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("save transaction: %w", err)
@@ -166,7 +167,7 @@ func scanTransaction(row interface{ Scan(...any) error }) (storage.Transaction, 
 		flagged, categorizePending int
 	)
 	if err := row.Scan(&t.ID, &created, &occurred, &amount, &t.Direction, &category,
-		&t.Description, &bankLabel, &t.RawText, &t.InputID, &flagged, &t.FlagReason, &categorizePending); err != nil {
+		&t.Description, &bankLabel, &t.RawText, &t.InputID, &flagged, &t.FlagReason, &categorizePending, &t.CategorizerText); err != nil {
 		return storage.Transaction{}, err
 	}
 	t.CreatedAt = time.Unix(created, 0).UTC()

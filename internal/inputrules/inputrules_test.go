@@ -96,6 +96,8 @@ func TestBankMessageWithNote(t *testing.T) {
 		HasTime:     true,
 		Description: "تنقلات",
 		BankLabel:   "#برداشت_با_POS",
+
+		MessageText: baleCase1, // one message: the whole Input, unmodified
 	}
 	if !d.OccurredAt.Equal(want.OccurredAt) {
 		t.Errorf("OccurredAt = %s, want %s", d.OccurredAt, want.OccurredAt)

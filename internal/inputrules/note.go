@@ -45,6 +45,41 @@ func description(d doc, text, modelNote string) string {
 	return ""
 }
 
+// messageText returns the text the Categorizer reads for one draft: the
+// original lines of the bank message that holds the amount plus the note
+// lines, in Input order, unmodified. When that is every line of the Input
+// (one message) the Input is returned as is, and so it is when the amount
+// was not found.
+func messageText(text string, d doc, tok numToken, found bool, note string) string {
+	if !found {
+		return text
+	}
+	orig := strings.Split(strings.ReplaceAll(text, "\r\n", "\n"), "\n")
+	norm := strings.Split(Normalize(text), "\n")
+	lead := 0
+	for lead < len(norm) && strings.TrimSpace(norm[lead]) == "" {
+		lead++
+	}
+	if len(orig) != len(norm) || lead+len(d.lines) > len(orig) {
+		return text
+	}
+	var picked []string
+	all := true
+	for i, l := range d.lines {
+		switch {
+		case l == "":
+		case d.para[i] == d.para[tok.line] || contains(note, l):
+			picked = append(picked, orig[lead+i])
+		default:
+			all = false
+		}
+	}
+	if all || len(picked) == 0 {
+		return text
+	}
+	return strings.Join(picked, "\n")
+}
+
 func joinLines(lines []string) string {
 	var out []string
 	for _, l := range lines {

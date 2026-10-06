@@ -38,6 +38,9 @@ type Transaction struct {
 	BankLabel string
 	// RawText is the whole Input as the Owner sent it.
 	RawText string
+	// CategorizerText is what the Categorizer reads: this Transaction's
+	// bank message plus the shared note. Empty means RawText.
+	CategorizerText string
 	// InputID identifies the Input: see NewInputID.
 	InputID           string
 	Flagged           bool

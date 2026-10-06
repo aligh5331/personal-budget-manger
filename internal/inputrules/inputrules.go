@@ -91,6 +91,10 @@ type Draft struct {
 	Description string
 	// BankLabel is the bank's own label or hashtag ("" when none).
 	BankLabel string
+	// MessageText is what the Categorizer reads: this draft's bank message
+	// plus the shared note, as the Owner wrote them (the whole Input when
+	// the Input is one message, or the message cannot be told apart).
+	MessageText string
 	// FollowUp is the one field that must be asked before the draft is
 	// complete, or FieldNone.
 	FollowUp Field
@@ -119,6 +123,7 @@ func Apply(in Input) Outcome {
 		if found {
 			dr.AmountToman, dr.HasAmount = toman, true
 		}
+		dr.MessageText = messageText(in.Text, d, tok, found, desc)
 		dr.Direction = direction(d, tok, found, desc, it)
 		dr.OccurredAt, dr.HasTime = occurredAt(d, it, now, desc)
 

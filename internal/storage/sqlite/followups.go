@@ -14,7 +14,7 @@ var _ storage.FollowUps = (*Store)(nil)
 
 const followUpColumns = `id, chat_id, prompt_message_id, field, expires_at, transaction_id, has_time,
 	direction_unclear, created_at, d_occurred_at, d_amount_toman, d_direction, d_description,
-	d_bank_label, d_raw_text, d_input_id, d_flag_reason`
+	d_bank_label, d_raw_text, d_input_id, d_flag_reason, d_categorizer_text`
 
 // SaveFollowUp implements storage.FollowUps.
 func (s *Store) SaveFollowUp(ctx context.Context, f storage.FollowUp) (int64, error) {
@@ -29,11 +29,11 @@ func (s *Store) SaveFollowUp(ctx context.Context, f storage.FollowUp) (int64, er
 	var id int64
 	err := s.db.QueryRowContext(ctx, `INSERT INTO followups (
 		chat_id, prompt_message_id, field, expires_at, transaction_id, has_time, direction_unclear, created_at,
-		d_occurred_at, d_amount_toman, d_direction, d_description, d_bank_label, d_raw_text, d_input_id, d_flag_reason
-	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+		d_occurred_at, d_amount_toman, d_direction, d_description, d_bank_label, d_raw_text, d_input_id, d_flag_reason, d_categorizer_text
+	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
 		f.ChatID, f.PromptMessageID, f.Field, expires, f.TransactionID, boolInt(f.HasTime), boolInt(f.DirectionUnclear), f.CreatedAt.Unix(),
 		f.Draft.OccurredAt.Unix(), f.Draft.AmountToman, f.Draft.Direction, f.Draft.Description, bankLabel,
-		f.Draft.RawText, f.Draft.InputID, f.Draft.FlagReason,
+		f.Draft.RawText, f.Draft.InputID, f.Draft.FlagReason, f.Draft.CategorizerText,
 	).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("save follow-up: %w", err)
@@ -137,7 +137,7 @@ func scanFollowUp(row interface{ Scan(...any) error }) (storage.FollowUp, error)
 	)
 	if err := row.Scan(&f.ID, &f.ChatID, &f.PromptMessageID, &f.Field, &expires, &f.TransactionID, &hasTime,
 		&unclear, &created, &occurred, &amount, &f.Draft.Direction, &f.Draft.Description,
-		&bankLabel, &f.Draft.RawText, &f.Draft.InputID, &f.Draft.FlagReason); err != nil {
+		&bankLabel, &f.Draft.RawText, &f.Draft.InputID, &f.Draft.FlagReason, &f.Draft.CategorizerText); err != nil {
 		return storage.FollowUp{}, err
 	}
 	if expires != 0 {

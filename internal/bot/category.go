@@ -72,8 +72,12 @@ func categorizable(tx storage.Transaction) bool {
 }
 
 // categorizerText is what the Categorizer reads: the bank message plus the
-// Owner's note, unmodified. For a one-message Input that is the whole Input.
+// Owner's note, unmodified. For a one-message Input that is the whole Input;
+// rows without a per-message text (older ones, unread Inputs) use raw_text.
 func categorizerText(tx storage.Transaction) string {
+	if tx.CategorizerText != "" {
+		return tx.CategorizerText
+	}
 	return tx.RawText
 }
 

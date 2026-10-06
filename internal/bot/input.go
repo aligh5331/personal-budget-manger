@@ -140,6 +140,8 @@ func transactionFromDraft(d inputrules.Draft, m *bale.Message, index int) storag
 		BankLabel:   d.BankLabel,
 		RawText:     m.Text,
 		InputID:     storage.NewInputID(m.MessageID, index),
+
+		CategorizerText: d.MessageText,
 	}
 	if d.HasAmount {
 		amount := d.AmountToman
