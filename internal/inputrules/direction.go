@@ -11,7 +11,7 @@ import (
 const MinConfidence = 0.7
 
 var (
-	outKeywords      = []string{"برداشت", "خرید", "پرداخت"}
+	outKeywords      = []string{"برداشت", "خرید"}
 	inKeywords       = []string{"واریز"}
 	transferKeywords = []string{"انتقال"}
 )
@@ -20,7 +20,7 @@ var (
 // wins:
 //
 //  1. the sign printed next to the amount (- out, + in);
-//  2. a keyword on the bank message's own lines (برداشت, خرید, پرداخت = out;
+//  2. a keyword on the bank message's own lines (برداشت, خرید = out;
 //     واریز = in; out and in together, or a bare انتقال, = ambiguous);
 //  3. the same keywords in the Owner's note;
 //  4. the model's reading, which also covers the note's meaning ("حقوق"):

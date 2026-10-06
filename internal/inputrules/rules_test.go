@@ -74,6 +74,7 @@ func TestDirection(t *testing.T) {
 		{"sign beats the note", "بانک ملی ایران\nانتقالی:63,000,000+\n0705-13:23\nخرید", "خرید", 63000000, extract.DirOut, 0.9, inputrules.In},
 		{"out keyword without sign", "بانک ملت\nبرداشت:125,000\n0703-13:45", "", 125000, extract.DirIn, 0.9, inputrules.Out},
 		{"in keyword without sign", "بانک ملت\nواریز:65,433\n0703-13:45", "", 65433, extract.DirOut, 0.9, inputrules.In},
+		{"پرداخت is not a keyword, the model decides", "بانک ملت\nپرداخت:125,000\n0703-13:45", "", 125000, extract.DirIn, 0.9, inputrules.In},
 		{"bare transfer is ambiguous", "بانک پاسارگاد\nانتقال\nمبلغ:1,000,000\n07/02 10:00", "", 1000000, extract.DirOut, 0.9, inputrules.Ambiguous},
 		{"conflicting keywords are ambiguous", "بانک\nبرداشت واریز:1,000,000\n07/02 10:00", "", 1000000, extract.DirOut, 0.9, inputrules.Ambiguous},
 		{"note keyword when the bank has no cue", "مبلغ: 1,000,000\nواریز از علی", "واریز از علی", 1000000, extract.DirOut, 0.9, inputrules.In},
@@ -118,6 +119,8 @@ func TestDates(t *testing.T) {
 		{"time not printed is dropped", "مبلغ: 4,200,000-\n1405/07/04", "1405/07/04", "12:00", at(2026, 9, 26, 0, 0), false},
 		{"date not printed means now", "نون 4,200,000 ریال", "1405/07/01", "09:00", now, false},
 		{"no date means now", "نون 4,200,000 ریال", "", "", now, false},
+		{"two-digit year is rejected, never read as month/day", sms("05/07/04 12:00"), "05/07/04", "12:00", now, false},
+		{"three-digit year is rejected", sms("999/07/04 12:00"), "999/07/04", "12:00", now, false},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {

@@ -50,6 +50,11 @@ func bankDate(text, s string, today jalali.Date) (jalali.Date, bool) {
 	case fullDateRe.MatchString(s):
 		p := fullDateRe.FindStringSubmatch(s)
 		y, m, day = atoi(p[1]), atoi(p[2]), atoi(p[3])
+		if y < 1000 {
+			// A year this short is not a Jalali year (05/07/04 could be
+			// anything); never fall through and read it as month/day.
+			return jalali.Date{}, false
+		}
 	case dayDateRe.MatchString(s):
 		p := dayDateRe.FindStringSubmatch(s)
 		m, day = atoi(p[1]), atoi(p[2])
