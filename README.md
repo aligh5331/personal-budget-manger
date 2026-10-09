@@ -78,6 +78,8 @@ docker network create reverse-proxy   # once, if you don't already have it
 ./deploy.sh                           # pulls :latest and runs docker compose up -d
 ```
 
+To build the image yourself where proxy.golang.org is blocked, pass a mirror: `docker build --build-arg GOPROXY=https://goproxy.cn,direct .`.
+
 `./deploy.sh v0.1.0` pins a version. `./deploy.sh bot.tar.gz` loads a Release tarball with no registry. A private ghcr.io package needs `docker login ghcr.io` first.
 
 The example compose file publishes no host port and joins an external `reverse-proxy` network, so a reverse proxy in front of it handles TLS. For polling-only use you don't need the proxy.
