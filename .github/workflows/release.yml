@@ -36,6 +36,11 @@ jobs:
           echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           echo "tarball=${repo,,}-${GITHUB_REF_NAME}-linux-amd64.tar.gz" >> "$GITHUB_OUTPUT"
 
+      - name: Docker Hub login (avoids anonymous pull rate limits)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io

@@ -28,5 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Docker Hub login (avoids anonymous pull rate limits)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: docker build (no push)
         run: docker build --platform linux/amd64 --build-arg VERSION=${GITHUB_SHA::7} -t personal-budget-bot:ci .
