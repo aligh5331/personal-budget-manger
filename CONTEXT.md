@@ -24,18 +24,18 @@ The bot's question when an Input lacks something a Transaction needs. Asked at m
 _Avoid_: Clarification, retry
 
 **Flagged transaction**:
-A Transaction saved incomplete because the Owner's Follow-up went unanswered or still left gaps. It shows up in reports as flagged until the Owner fixes it.
+A Transaction saved incomplete because the Owner's Follow-up went unanswered, was overtaken by a new Input, or still left gaps. A Transaction saved as "Uncategorized" with no Follow-up is not flagged. It shows up in reports as flagged, outside the Category totals, until the Owner fixes it.
 _Avoid_: Draft, pending, error
 
 **Transaction**:
-One record of money spent or received: amount, direction, Category, description, date.
+One record of money spent or received: amount, direction, Category, description, date. The description is the Owner's own words from the note, never the bank's label.
 _Avoid_: Invoice, expense (an expense is a Transaction whose direction is out), entry
 
 **Direction**:
-Whether a Transaction is money out (expense) or money in (income).
+Whether a Transaction is money out (expense), money in (income), or an internal transfer between the Owner's own accounts. Internal transfers are saved but excluded from income and expense totals.
 
 **Category**:
-A label from the Owner's editable list that groups Transactions for reports.
+A label from the Owner's editable list that groups Transactions for reports. Each is either expense or income, and can be archived but never deleted. Internal transfers have none.
 _Avoid_: Tag, type
 
 **Undo**:

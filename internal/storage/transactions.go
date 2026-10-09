@@ -1,0 +1,112 @@
+package storage
+
+import (
+	"context"
+	"strconv"
+	"time"
+)
+
+// Direction is a Transaction's Direction as stored.
+type Direction string
+
+// Direction values stored on a Transaction.
+const (
+	DirectionOut      Direction = "out"
+	DirectionIn       Direction = "in"
+	DirectionInternal Direction = "internal"
+)
+
+// FlagReason says why a transaction is Flagged.
+type FlagReason string
+
+// Flag reasons stored on a Flagged transaction.
+const (
+	FlagAmountMissing      FlagReason = "amount_missing"
+	FlagDirectionAmbiguous FlagReason = "direction_ambiguous"
+	FlagFollowupTimeout    FlagReason = "followup_timeout"
+	FlagFollowupUnparsed   FlagReason = "followup_unparsed"
+)
+
+// Transaction is one saved money movement.
+type Transaction struct {
+	ID         int64
+	CreatedAt  time.Time
+	OccurredAt time.Time
+	// AmountToman is nil only on a Flagged transaction with no amount.
+	AmountToman *int64
+	// Direction is DirectionOut, DirectionIn or DirectionInternal.
+	Direction Direction
+	// CategoryID is nil only for internal transfers.
+	CategoryID *int64
+	// Description is the Owner's own words only.
+	Description string
+	// BankLabel is the bank's own label ("" is stored as NULL).
+	BankLabel string
+	// RawText is the whole Input as the Owner sent it.
+	RawText string
+	// CategorizerText is what the Categorizer reads: this Transaction's
+	// bank message plus the shared note. Empty means RawText.
+	CategorizerText string
+	// InputID identifies the Input: see NewInputID.
+	InputID           string
+	Flagged           bool
+	FlagReason        FlagReason
+	CategorizePending bool
+}
+
+// NewInputID builds a Transaction's input_id: the Bale message id of the
+// Input plus the index of the bank message within it.
+func NewInputID(messageID int64, index int) string {
+	return strconv.FormatInt(messageID, 10) + ":" + strconv.Itoa(index)
+}
+
+// Transactions stores Transactions.
+type Transactions interface {
+	// SaveTransaction stores a new Transaction and returns its id. t.ID is
+	// ignored; t.CreatedAt comes from the caller's clock.
+	SaveTransaction(ctx context.Context, t Transaction) (int64, error)
+	// TransactionByID returns a Transaction; ok is false if there is none.
+	TransactionByID(ctx context.Context, id int64) (t Transaction, ok bool, err error)
+	// DeleteTransaction hard-deletes a Transaction by id. deleted is false
+	// when it was already gone.
+	DeleteTransaction(ctx context.Context, id int64) (deleted bool, err error)
+	// TransactionExists reports whether a Transaction with this amount and
+	// Direction occurred in [from, to). It is the duplicate check.
+	TransactionExists(ctx context.Context, amountToman int64, direction Direction, from, to time.Time) (bool, error)
+	// HoldDuplicate keeps a Transaction that was not saved because it looks
+	// like a duplicate, and returns the id for [Save anyway].
+	HoldDuplicate(ctx context.Context, t Transaction) (id int64, err error)
+	// TakeHeldDuplicate returns and removes a held duplicate; ok is false
+	// if it was already taken.
+	TakeHeldDuplicate(ctx context.Context, id int64) (t Transaction, ok bool, err error)
+	// UpdateTransaction saves the fields the Owner can change on an
+	// existing Transaction: OccurredAt, AmountToman, Direction, CategoryID,
+	// Description, Flagged, FlagReason and CategorizePending. updated is
+	// false when it was already gone.
+	UpdateTransaction(ctx context.Context, t Transaction) (updated bool, err error)
+	// SetOwnerCategory records the Category the Owner picked by hand. It
+	// also clears categorize_pending, so a background re-categorize never
+	// overwrites the Owner's choice. updated is false when the Transaction
+	// is gone.
+	SetOwnerCategory(ctx context.Context, id, categoryID int64) (updated bool, err error)
+	// AllTransactions returns every Transaction, oldest id first (/export).
+	AllTransactions(ctx context.Context) ([]Transaction, error)
+	// ListTransactions returns one page of the Transactions matching f,
+	// newest first by OccurredAt (then id), and how many match in all.
+	ListTransactions(ctx context.Context, f TransactionFilter, limit, offset int) (page []Transaction, total int, err error)
+	// ReportSummary totals the Transactions occurring in r by Category and
+	// Direction, counts internal transfers and Flagged transactions (see
+	// ReportSummary). Archived Categories keep their lines.
+	ReportSummary(ctx context.Context, r ReportRange) (ReportSummary, error)
+}
+
+// TransactionFilter narrows ListTransactions. The zero value matches every
+// Transaction.
+type TransactionFilter struct {
+	// From and To bound OccurredAt as [From, To); a zero time is no bound.
+	From, To time.Time
+	// FlaggedOnly keeps only Flagged transactions.
+	FlaggedOnly bool
+	// CategoryID, when set, keeps only that Category (archived or not).
+	CategoryID *int64
+}
