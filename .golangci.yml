@@ -1,0 +1,6 @@
+version: "2"
+
+# Default linters, plus gofmt so formatting drift fails `golangci-lint run`.
+formatters:
+  enable:
+    - gofmt

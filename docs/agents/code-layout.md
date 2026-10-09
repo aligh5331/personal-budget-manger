@@ -59,7 +59,7 @@ Register handlers from an `init` in a new file instead of editing a shared switc
 - Every way out is in `followup.go`: an answer (`completeLocked`: duplicate check, Category step, save, confirmation), no answer in `FollowUpTTL` (30 min; `ExpireFollowUps`, run at startup and every 30 s by `RunFollowUpTimer`), a new Input (`closeOpenFollowUps`, first step of `handleInput`; reason stays `amount_missing` / `direction_ambiguous`), or an unreadable reply (`followup_unparsed`). Extraction failing twice saves the Input Flagged with its raw text (`saveUnreadInput`, reason `amount_missing`).
 - `(*Bot).saveDraft` (input.go) is duplicate check, Category step and save for one complete draft; use it instead of calling `SaveTransaction` directly. `categorizable` skips every Flagged transaction.
 - **For #38 [Fix]:** `(*Bot).OpenFollowUp(ctx, chatID, transactionID) (ok bool, err error)` opens a Follow-up for an existing Flagged transaction. It asks for the amount when there is none, else the Direction. When answered it clears the flag, runs the Category step, updates the row and sends a confirmation; an unreadable answer or no answer leaves the Transaction as it was. `ok` is false when the Transaction is gone, not Flagged, or already has an open Follow-up. A missing field is derived from the row (`AmountToman == nil` is the amount). The `Edit` flow's amount and Direction edits also clear the flag on any Flagged transaction.
-- Tests: `h.ExpireFollowUps()` runs the sweep (move `h.Clock` first); `h.Restart()` runs it too, like startup. `extractfake` keeps its last scripted reading; `h.Extractor.Reset()` clears the script before queueing a new one after an Input was sent.
+- Tests: `h.ExpireFollowUps()` runs the sweep (move `h.Clock` first); `h.Restart()` runs it too, like startup. `h.Extractor` and `h.Categorizer` answer one scripted entry per call and fail the test when asked for more; call `.Repeat()` when the last entry should answer every further call (the same message sent twice), or `.Reset()` to clear the script before queueing new readings after an Input was sent.
 
 - `/flagged` (#38): `cmd_flagged.go`, callback prefix `fl` (`fl:p:<page>`, `fl:x:<id>` Fix via `OpenFollowUp`, `fl:d:<id>:<page>` hard delete). Stateless: pages come from `ListTransactions(FlaggedOnly)`, 5 per page.
 
@@ -67,7 +67,7 @@ A new collaborator (Extractor, Categorizer, another storage interface) is one fi
 
 ## Migrations
 
-`internal/storage/sqlite/migrations/NNNN_name.sql`, where `NNNN` is your ticket's issue number (`0032_transactions.sql`). Several files for one ticket share the prefix (`0032_transactions.sql`, `0032_transactions_index.sql`). The runner applies every file not yet in `schema_migrations`, in name order, each in its own transaction, so a lower-numbered file merged later still runs. Never edit a migration after it merged; add a new one.
+`internal/storage/sqlite/migrations/NNNN_name.sql`, where `NNNN` is your ticket's issue number (`0032_transactions.sql`). A migration can only depend on files that sort before it: one that alters a table must be numbered higher than the file that creates it (`0048_categorizer_text.sql` alters tables from `0032_` and `0037_`; a `0030_` file would run first and fail on a fresh database). Several files for one ticket share the prefix (`0032_transactions.sql`, `0032_transactions_index.sql`). The runner applies every file not yet in `schema_migrations`, in name order, each in its own transaction, so a lower-numbered file merged later still runs. Never edit a migration after it merged; add a new one.
 
 Portable SQL only: `INTEGER` ids, `TEXT`, `BIGINT` amounts and UTC unix seconds, 0/1 booleans, `ON CONFLICT` upserts. No SQLite-only types or functions.
 
@@ -79,7 +79,14 @@ Portable SQL only: `INTEGER` ids, `TEXT`, `BIGINT` amounts and UTC unix seconds,
 
 ## Checks
 
-`go vet ./...`, `go test ./...` and `golangci-lint run` (v2, default linters) must pass; CI also builds the Docker image. A golangci-lint built with an older Go than `go.mod` fails to load; build it with the current toolchain (`go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest`).
+Run `scripts/check.sh` before every commit. It runs what CI runs: `gofmt -l`, `go vet ./...`, `go test ./...` and `golangci-lint run` (v2, default linters plus gofmt, config in `.golangci.yml`). CI pins golangci-lint at the version in `.github/workflows/ci.yml`; bump both together. CI also builds the Docker image.
+
+Gotchas on this repo's Windows dev machine:
+
+- A golangci-lint built with an older Go than `go.mod` fails to load. Install one built with the current toolchain (`go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.14.0`) and point `scripts/check.sh` at it with `GOLANGCI_LINT=<path>` when an older one is first on `PATH`.
+- If `go mod download` fails with `unexpected EOF` from the configured proxy, retry with `GOPROXY=https://goproxy.cn,direct`.
+- Write invisible characters in Go source as escapes (the zero-width non-joiner is `\u200c` inside a string) or hex constants, never as the literal character: some editor tools turn the escape into the real character, and a literal BOM breaks the build. `internal/sourcecheck` fails `go test` when any `.go` file contains one.
+- Files are checked out with LF (`.gitattributes`); a script that writes CRLF fails the gofmt check.
 
 ## Releases
 

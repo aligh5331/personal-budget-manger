@@ -10,13 +10,23 @@ import (
 	"github.com/aligh5331/personal-budget-manger/internal/categorize"
 )
 
-// Fake answers from a script, one entry per call; once the script runs out it
-// keeps using the last entry. With nothing scripted it picks the "none"
-// option (Uncategorized) at confidence 1.
+// Fake answers from a script, one entry per call. Asking for more answers
+// than were queued fails the test, unless the test called Repeat to say the
+// last entry should answer every further call. With nothing scripted it
+// picks the "none" option (Uncategorized) at confidence 1.
 type Fake struct {
 	mu     sync.Mutex
+	t      reporter
 	script []step
+	next   int
+	repeat bool
 	calls  []Call
+}
+
+// reporter is the part of testing.TB the fake needs.
+type reporter interface {
+	Helper()
+	Errorf(format string, args ...any)
 }
 
 type step struct {
@@ -33,8 +43,16 @@ type Call struct {
 
 var _ categorize.Categorizer = (*Fake)(nil)
 
-// New returns an empty Fake.
-func New() *Fake { return &Fake{} }
+// New returns an empty Fake that reports misuse to t.
+func New(t reporter) *Fake { return &Fake{t: t} }
+
+// Repeat makes the last scripted entry answer every call after the script
+// runs out.
+func (f *Fake) Repeat() {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.repeat = true
+}
 
 // Choose queues a pick of the offered option named name. If no such option
 // was offered, Categorize returns an error.
@@ -74,10 +92,12 @@ func (f *Fake) Categorize(_ context.Context, text string, options []categorize.O
 	f.calls = append(f.calls, Call{Text: text, Options: append([]categorize.Option(nil), options...)})
 	var s step
 	if len(f.script) > 0 {
-		s = f.script[0]
-		if len(f.script) > 1 {
-			f.script = f.script[1:]
+		if f.next >= len(f.script) && !f.repeat {
+			f.t.Helper()
+			f.t.Errorf("categorizefake: call %d but only %d answers are scripted; queue more or call Repeat()", f.next+1, len(f.script))
 		}
+		s = f.script[min(f.next, len(f.script)-1)]
+		f.next++
 	} else {
 		s = step{confidence: 1}
 	}

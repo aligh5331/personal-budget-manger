@@ -176,6 +176,7 @@ func TestRenameKeepsADefaultedHintInStepWithTheName(t *testing.T) {
 
 func TestArchiveHidesFromPickersAndJevButKeepsOldTransactions(t *testing.T) {
 	h := bottest.New(t)
+	h.Categorizer.Repeat() // one pick answers both Inputs
 	lunch := melliReading("ناهار")
 	lunch.Transactions[0].Amount = 990000
 	h.Extractor.Return(melliReading("تنقلات"))

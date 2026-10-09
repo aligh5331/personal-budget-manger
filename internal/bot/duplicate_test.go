@@ -23,6 +23,7 @@ func countSaved(t *testing.T, h *bottest.Harness) int {
 
 func TestForwardingTheSameMessageTwiceIsCaughtAsADuplicate(t *testing.T) {
 	h := bottest.New(t)
+	h.Extractor.Repeat() // the same message is sent twice
 	h.Extractor.Return(melliReading(""))
 	h.SendText(melliBale)
 
@@ -42,6 +43,7 @@ func TestForwardingTheSameMessageTwiceIsCaughtAsADuplicate(t *testing.T) {
 
 func TestSaveAnywaySavesTheDuplicate(t *testing.T) {
 	h := bottest.New(t)
+	h.Extractor.Repeat() // the same message is sent twice
 	h.Extractor.Return(melliReading("تنقلات"))
 	h.SendText(melliBale + "\nتنقلات")
 	h.SendText(melliBale + "\nتنقلات")

@@ -88,6 +88,7 @@ func TestTheOwnersChoiceBeatsALateResult(t *testing.T) {
 
 func TestItGivesUpAfterSixTries(t *testing.T) {
 	h := bottest.New(t)
+	h.Categorizer.Repeat() // every retry fails the same way
 	id, _ := pendingTransaction(t, h)
 
 	for i := range 6 {

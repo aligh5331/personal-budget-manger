@@ -67,6 +67,7 @@ func TestCategoryButtonOnABatchOpensThePickerForThatTransaction(t *testing.T) {
 
 func TestSaveAnywayRunsTheCategoryStep(t *testing.T) {
 	h := bottest.New(t)
+	h.Extractor.Repeat() // the same message is sent twice
 	h.Extractor.Return(melliReading(""))
 	h.Categorizer.Choose("Snacks", 0.9)
 	h.Categorizer.Choose("Fuel", 0.9)
