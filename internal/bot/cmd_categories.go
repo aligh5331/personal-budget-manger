@@ -256,7 +256,7 @@ func (b *Bot) renameCategoryTo(ctx context.Context, id int64, text string) (stri
 // parseCategoryLine reads "name | Persian hint | kind". The hint may be
 // left out ("name | kind" or "name | | kind") and then defaults to the name.
 func parseCategoryLine(line string) (name, hint, kind string, ok bool) {
-	parts := strings.Split(line, "|")
+	parts := strings.Split(line, "|") //nolint:forbidigo // an Add line typed by the Owner, not callback_data
 	for i := range parts {
 		parts[i] = strings.TrimSpace(parts[i])
 	}

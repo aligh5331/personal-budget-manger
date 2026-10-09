@@ -188,7 +188,7 @@ func splitMessage(text string, limit int) []string {
 			curLen = 0
 		}
 	}
-	for line := range strings.SplitSeq(text, "\n") {
+	for line := range strings.SplitSeq(text, "\n") { //nolint:forbidigo // report text, not callback_data
 		for utf8.RuneCountInString(line) > limit {
 			flush()
 			r := []rune(line)
