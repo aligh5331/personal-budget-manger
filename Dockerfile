@@ -1,10 +1,14 @@
 # Builds a linux/amd64 image with a static, CGO-free binary.
-# Override base images with --build-arg (e.g. to use a mirror).
+# Override base images with --build-arg (e.g. to use a mirror), and GOPROXY
+# where proxy.golang.org is unreachable.
 ARG GO_IMAGE=golang:1.27-alpine
+ARG GOPROXY=https://proxy.golang.org,direct
 ARG RUNTIME_IMAGE=alpine:3
 
 FROM --platform=linux/amd64 ${GO_IMAGE} AS build
 WORKDIR /src
+ARG GOPROXY
+ENV GOPROXY=${GOPROXY}
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .

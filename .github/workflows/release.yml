@@ -3,6 +3,8 @@ name: Release
 # A v* tag (e.g. v1.2.3) publishes the image to ghcr.io as :v1.2.3 and :latest
 # and creates a GitHub Release with a gzipped `docker save` tarball, for labs
 # that cannot reach ghcr.io (load it with `./deploy.sh <tarball>`).
+# A tag with a hyphen (v0.1.0-alpha.1) is a pre-release: it gets no :latest and
+# the Release is marked pre-release.
 # Pushes to branches, main included, never release.
 on:
   push:
@@ -34,6 +36,11 @@ jobs:
           echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           echo "tarball=${repo,,}-${GITHUB_REF_NAME}-linux-amd64.tar.gz" >> "$GITHUB_OUTPUT"
 
+      - name: Docker Hub login (avoids anonymous pull rate limits)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -48,7 +55,8 @@ jobs:
           docker build --platform linux/amd64 --build-arg VERSION="$TAG" \
             --label org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}" \
             --label org.opencontainers.image.version="$TAG" \
-            -t "$IMAGE:$TAG" -t "$IMAGE:latest" .
+            -t "$IMAGE:$TAG" .
+          if [[ "$TAG" != *-* ]]; then docker tag "$IMAGE:$TAG" "$IMAGE:latest"; fi
           test "$(docker run --rm "$IMAGE:$TAG" -version)" = "$TAG"
 
       - name: docker push
@@ -57,7 +65,7 @@ jobs:
           TAG: ${{ steps.meta.outputs.tag }}
         run: |
           docker push "$IMAGE:$TAG"
-          docker push "$IMAGE:latest"
+          if [[ "$TAG" != *-* ]]; then docker push "$IMAGE:latest"; fi
 
       - name: docker save
         env:
@@ -71,4 +79,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.meta.outputs.tag }}
           TARBALL: ${{ steps.meta.outputs.tarball }}
-        run: gh release create "$TAG" "$TARBALL" --title "$TAG" --generate-notes --verify-tag
+        run: |
+          flags=()
+          if [[ "$TAG" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$TAG" "$TARBALL" --title "$TAG" --generate-notes --verify-tag "${flags[@]}"
